@@ -1,0 +1,30 @@
+---
+layout: page
+title: Asta iniziale 2022-2023
+permalink: /2022-2023/mercati/asta-iniziale
+---
+
+{% for s in site.data.stagione_2022_2023.fantasquadre %}
+
+    <h3>{{ s.squadra }}</h3>
+
+    <table>
+        <tr>
+            <th>Ruolo</th>
+            <th>Nome</th>
+            <th>Squadra</th>
+            <th>Costo Aquisto</th>
+        </tr>
+        {% for item in site.data.stagione_2022_2023.rose.asta_iniziale %}
+            {% if item.fanta_squadra == s.squadra %}
+                <tr>
+                    <td>{{ item.ruolo }}</td>
+                    <td>{{ item.nome }}</td>
+                    <td>{{ item.squadra }}</td>
+                    <td>{{ item.costo }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+
+{% endfor %}
