@@ -1,0 +1,11 @@
+---
+layout: page
+---
+
+<a href=".">Riepilogo</a>
+
+{% for id in page.squadre %}
+    - <a href="{{ id }}">{{ site.data.fantasquadre[id].name }}</a>
+{% endfor %}
+
+{{ content }}

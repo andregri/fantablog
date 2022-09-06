@@ -32,6 +32,7 @@ github_username:  jekyll
 header_pages:
   - about.md
   - stagioni/2022-2023/stagione.md
+  - stagioni/2023-2024/stagione.md
 
 # Build settings
 theme: minima
