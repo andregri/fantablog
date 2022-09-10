@@ -13,7 +13,7 @@ with open('../../_data/fantasquadre.yml', 'r') as f:
 def generate_file(row, svg, stat):
     id = int(row['Nome utente'])
     nome = id2fantasquadra[id]['name']
-    with open(f'../out/{id}.html', 'w') as f:
+    with open(f'../../stagioni/2022-2023/pronostici/{id}.md', 'w') as f:
         # front matter
         f.write('---\n')
         f.write('layout: pronostici\n')
@@ -23,17 +23,28 @@ def generate_file(row, svg, stat):
         f.write('---\n')
 
         # classifica
-        f.write('<ol>\n')
+        f.write('---\n')
+        f.write('# I pronostici\n')
         for i in range(1,11):
             key = f'{i}° classificato'
-            f.write(f'<li>{row[key]}</li>\n')
-        f.write('</ol>\n')
+            f.write(f'{i}. {row[key]}\n\n')
 
         # statistiche
-        f.write(f'<h2> Come è stato pronosticato {nome}? <h2>\n')
-        f.write(f'<p>Media: {stat["avg"]}</p>\n')
-        f.write(f'<p>Mediana: {stat["mediana"]}</p>\n')
-        f.write(svg + '\n')
+        f.write(f'# Come è stato pronosticato {nome}?\n')
+        f.write(f'Media: {stat["avg"]}\n\n')
+        f.write(f'Mediana: {stat["mediana"]}\n\n')
+        f.write('<div>' + svg + '</div>\n')
+
+
+def generate_summary_file(svg):
+    with open(f'../../stagioni/2022-2023/pronostici/pronostici.html', 'w') as f:
+        f.write('---\n')
+        f.write('layout: pronostici\n')
+        f.write('title: I pronostici della stagione 2022-2023\n')
+        f.write('permalink: /2022-2023/pronostici\n')
+        f.write('squadre: [1,2,3,4,5,6,7,8,9,10]\n')
+        f.write('---\n')
+        f.write(svg)
 
 
 def position2team(rows):
@@ -100,10 +111,17 @@ def export_all_files(rows):
         x = dict[fantasquadra].keys()
         y = dict[fantasquadra].values()
         svg = generate_histogram_svg(x, y)
+        svg = svg.split("\n", 3)[-1]
 
         stat = stats(y)
 
         generate_file(row, svg, stat)
+
+
+def export_summary_file(rows):
+    svg = generate_histogram_svg_summary(rows)
+    clean_svg = svg.split("\n", 3)
+    generate_summary_file(clean_svg[3])
 
 
 def generate_histogram_svg(x, y):
@@ -114,6 +132,35 @@ def generate_histogram_svg(x, y):
     plt.yticks(range(0,max(y)+1))
     plt.bar(x,y)
     plt.savefig(f, format = "svg")
+    return f.getvalue().decode()
+
+
+def generate_histogram_svg_summary(rows):
+    f = io.BytesIO()
+
+    data = team2position(rows)
+
+    fig, (ax, lax) = plt.subplots(ncols=2, gridspec_kw={"width_ratios":[4, 1]})
+
+    x = list(range(1,11))
+    ax.set_xticks(x)
+    ax.set_xlabel('Posizione in classifica')
+    
+    y = []
+    y_prev = [0 for i in range(10)]
+
+    for team, d in data.items():
+        y = list(d.values())
+        ax.bar(x, y, bottom=y_prev, label=team)
+        y_prev = [y1+y2 for y1, y2 in zip(y,y_prev)]
+
+    h, l = ax.get_legend_handles_labels()
+    lax.legend(h, l, borderaxespad=0)
+    lax.axis("off")
+
+    plt.tight_layout()
+    
+    fig.savefig(f, format = "svg")
     return f.getvalue().decode()
 
 
@@ -140,4 +187,4 @@ def stats(freqs):
 if __name__ == "__main__":
     rows = read_csv()
     export_all_files(rows)
-    
+    export_summary_file(rows)
