@@ -1,3 +1,6 @@
-home,home_score,away,away_score
-Apoel Kan,2,Real Pollo,3
-Patetico Mineiro,2,Paris Saint Germano,0
+id,home,score,away
+0,Medusa Team,1-1,Pompy FC
+1,Paris Saint Germano,0-1,Patetico Mineiro
+2,Reggisenal,1-0,Godopoli Sportiva
+3,ApoelKan,2-4,Real Pollo
+4,Ire Framba United,0-0,Team Barco FC

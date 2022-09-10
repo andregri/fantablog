@@ -1,0 +1,16 @@
+---
+layout: giornata_22_23
+title: Giornata 1
+permalink: /2022-2023/giornate/1
+---
+
+<h1>Risultati</h1>
+<table>
+  {% for item in site.data.stagione_2022_2023.giornata_1 %}
+    <tr>
+      <td>{{ item.home }}</td>
+      <td>{{ item.score }}</td>
+      <td>{{ item.away }}</td>
+    <tr>
+  {% endfor %}
+</table>
