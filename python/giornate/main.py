@@ -25,6 +25,9 @@ class Giornata():
             partite = data['data']['formazioni']
 
             for id_partita, partita in enumerate(partite):
+                # i want id_partita to start from 1
+                id_partita += 1
+
                 self.partite[id_partita] = {}
                 self.partite[id_partita]['codice_fg'] = partita['id']
                 self.partite[id_partita]['risultato'] = partita['r']
@@ -73,6 +76,13 @@ class Giornata():
 
         return calciatore
 
+    def get_title(self, id_partita):
+        id_squadra_casa = self.partite[id_partita]['home']['id_squadra']
+        nome_squadra_casa = id2fantasquadra[id_squadra_casa]
+        id_squadra_trasferta = self.partite[id_partita]['away']['id_squadra']
+        nome_squadra_trasferta = id2fantasquadra[id_squadra_trasferta]
+        risultato = self.partite[id_partita]['risultato']
+        return nome_squadra_casa, nome_squadra_trasferta, risultato
 
     def genera_riepilogo_giornata(self):
         with open('../../stagioni/2022-2023/giornate/1/1.html', 'w') as f:
@@ -100,13 +110,44 @@ class Giornata():
                 id_squadra_trasferta = partita['away']['id_squadra']
                 nome_squadra_trasferta = id2fantasquadra[id_squadra_trasferta]
                 risultato = partita['risultato']
+
+                nome_squadra_casa, nome_squadra_trasferta, risultato = self.get_title(i)
                 f.write(f'{i},{nome_squadra_casa},{risultato},{nome_squadra_trasferta}\n')
 
 
-def genera_partita():
-    pass
+    def genera_partita(self, id_partita):
+        nome_squadra_casa, nome_squadra_trasferta, risultato = self.get_title(id_partita)
+        title = f'{nome_squadra_casa} ({risultato}) {nome_squadra_trasferta}'
+
+        with open(f'../../stagioni/2022-2023/giornate/1/partite/{id_partita}.html', 'w') as f:
+            f.write('---\n')
+            f.write('layout: partita_22_23\n')
+            f.write(f'title: {title}\n')
+            f.write(f'permalink: /2022-2023/giornate/1/partite/{id_partita}\n')
+            f.write('---\n\n')
+
+            # Titolari
+            f.write('<h1>Titolari</h1>\n')
+            f.write('<table>\n')
+            f.write('  <tr>\n')
+            f.write('    <th>Nome</th>\n')
+            f.write('    <th>Voto</th>\n')
+            f.write('    <th>FV</th>\n')
+            f.write('    <th> -- </th>\n')
+            f.write('    <th>Nome</th>\n')
+            f.write('    <th>Voto</th>\n')
+            f.write('    <th>FV</th>\n')
+            f.write('  </tr>\n')
+            # todo
+            f.write('</table>\n')
+
+            # Panchina
+
+            # Tribuna
 
 
 if __name__ == "__main__":
     giornata = Giornata('../data/giornata1.json')
     giornata.genera_riepilogo_giornata()
+    for i in range(1,6):
+        giornata.genera_partita(i)
