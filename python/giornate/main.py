@@ -67,7 +67,7 @@ class Giornata():
         calciatore['gol_fatti']       = bonus_list[2]
         calciatore['gol_subiti']      = bonus_list[3]
         calciatore['rigori_parati']   = bonus_list[4]
-        calciatore['rigori_sbaliati'] = bonus_list[5]
+        calciatore['rigori_sbagliati'] = bonus_list[5]
         calciatore['autogol']         = bonus_list[7]
         calciatore['porta_inviolata'] = bonus_list[10]
         calciatore['assist_bronzo']   = bonus_list[12]
@@ -130,15 +130,88 @@ class Giornata():
             f.write('<h1>Titolari</h1>\n')
             f.write('<table>\n')
             f.write('  <tr>\n')
-            f.write('    <th>Nome</th>\n')
-            f.write('    <th>Voto</th>\n')
-            f.write('    <th>FV</th>\n')
-            f.write('    <th> -- </th>\n')
-            f.write('    <th>Nome</th>\n')
-            f.write('    <th>Voto</th>\n')
-            f.write('    <th>FV</th>\n')
+            for i in range(2):
+                f.write('    <th>Nome</th>\n')
+                f.write('    <th></th>\n')
+                f.write('    <th>Voto</th>\n')
+                f.write('    <th>FV</th>\n')
+                if i == 0:
+                    f.write('    <th> -- </th>\n')
             f.write('  </tr>\n')
-            # todo
+            
+            for i in range(11):
+                f.write(f'  <tr>\n')
+                for field in ['home', 'away']:
+                    calciatori = self.partite[id_partita][field]['calciatori']
+                    calciatore = calciatori[i]
+
+                    # RUOLO
+                    ruolo = calciatore["ruolo"].upper()
+                    if ruolo == 'P':
+                        ruolo_img = f'<img src="/assets/img/ruolo_p.png" alt="P">'
+                    elif ruolo == 'D':
+                        ruolo_img = f'<img src="/assets/img/ruolo_d.png" alt="D">'
+                    elif ruolo == 'C':
+                        ruolo_img = f'<img src="/assets/img/ruolo_c.png" alt="C">'
+                    elif ruolo == 'A':
+                        ruolo_img = f'<img src="/assets/img/ruolo_a.png" alt="A">'
+                    
+                    nome = calciatore["nome"]
+                    team = calciatore["team"].upper()
+                    
+                    # VOTO is 56 when player has not played
+                    voto = calciatore["voto"]
+                    if voto == 56:
+                        voto = '-'
+                    
+                    # FANTAVOTO is 100 when player has not played
+                    fantavoto = calciatore["fantavoto"]
+                    if fantavoto == 100:
+                        fantavoto = '-'
+
+                    # BONUS
+                    bonus = ''
+
+                    for i in range(calciatore['ammonizioni']):
+                        bonus += '<img src="/assets/img/ammonito.png" alt="Giallo">'
+
+                    for i in range(calciatore['gol_fatti']):
+                        bonus += '<img src="/assets/img/golFatto.png" alt="Gol">'
+
+                    for i in range(calciatore['gol_subiti']):
+                        bonus += '<img src="/assets/img/golSubito.png" alt="Gol Subito">'
+
+                    for i in range(calciatore['assist_bronzo']):
+                        bonus += '<img src="/assets/img/golFatto.png" alt="Gol">'
+
+                    for i in range(calciatore['rigori_parati']):
+                        bonus += '<img src="/assets/img/rigoreParato.png" alt="Rigore Parato">'
+
+                    for i in range(calciatore['rigori_sbagliati']):
+                        bonus += '<img src="/assets/img/rigoreSbagliato.png" alt="Rigore Sbagliato">'
+
+                    for i in range(calciatore['porta_inviolata']):
+                        bonus += '<img src="/assets/img/portiereImbattuto.png" alt="Portiere imbattuto">'
+
+                    for i in range(calciatore['autogol']):
+                        bonus += '<img src="/assets/img/autogol.png" alt="Autogol">'
+
+                    for i in range(calciatore['assist_bronzo']):
+                        bonus += '<img src="/assets/img/assistSoft.png" alt="Assist bronzo">'
+
+                    for i in range(calciatore['assist_argento']):
+                        bonus += '<img src="/assets/img/assist.png" alt="Assist argento">'
+
+                    for i in range(calciatore['assist_oro']):
+                        bonus += '<img src="/assets/img/assistGold.png" alt="Assist oro">'
+
+                    f.write(f'    <td><span style="display: block">{ruolo_img} {nome}</span><span style="display: block">{bonus}</span></td>\n')
+                    f.write(f'    <td>{team}</td>\n')
+                    f.write(f'    <td>{voto}</td>\n')
+                    f.write(f'    <td>{fantavoto}</td>\n')
+                    if field == 'home':
+                        f.write(f'    <td></td>\n')
+                f.write(f'  </tr>\n')
             f.write('</table>\n')
 
             # Panchina
