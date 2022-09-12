@@ -1,5 +1,7 @@
 import json
 import yaml
+import csv
+
 
 # Read map from ID to Fantasquadra name
 id2fantasquadra = {}
@@ -9,11 +11,15 @@ with open('../../_data/fantasquadre.yml', 'r') as f:
 
 
 class Giornata():
-    def __init__(self, filename):
+    def __init__(self, filename, filename_classifica):
         self.filename = filename
         self.partite = {}   # keys: 1, 2, 3, ... values: {codice_fg: , risultato: }
                             # keys: 1, 2, 3, ... vaules: {id_partita: , modulo: , punti: , mod_difesa: , calciatori: []}
+        self.classifica = []
+        
         self.read_json(self.filename)
+        self.read_classifica_csv(filename_classifica)
+
 
     def read_json(self, filename):
         """
@@ -48,7 +54,18 @@ class Giornata():
                         tmp_squadra['calciatori'].append(c)
 
                     self.partite[id_partita][field] = tmp_squadra
+
     
+    def read_classifica_csv(self, filename):
+        """
+        Read csv file that contains all informations about
+        the chart of a specific matchday
+        """
+        with open(filename, newline='') as csvFile:
+            reader = csv.DictReader(csvFile, delimiter=';')
+            for row in reader:
+                self.classifica.append(row)
+
     
     def parse_calciatore(self, data):
         # rename keys
@@ -91,6 +108,7 @@ class Giornata():
             f.write('title: Giornata 1\n')
             f.write('permalink: /2022-2023/giornate/1\n')
             f.write('---\n\n')
+            
             f.write('<h1>Risultati</h1>\n')
             f.write('<table>\n')
             f.write('  {% for item in site.data.stagione_2022_2023.giornata_1 %}\n')
@@ -101,6 +119,21 @@ class Giornata():
             f.write('    <tr>\n')
             f.write('  {% endfor %}\n')
             f.write('</table>\n')
+
+            f.write('<h1>Classifica</h1>\n')
+            f.write('  <table>\n')
+            f.write('    <tr>\n')
+            # Header row
+            for header in self.classifica[0].keys():
+                f.write(f'      <th>{header}</th>')
+            f.write('    </tr>\n')
+            # Value rows
+            for row in self.classifica:
+                f.write('    <tr>\n')
+                for value in row.values():
+                    f.write(f'      <td>{value}</td>\n')
+                f.write('    </tr>\n')
+            f.write('  </table>\n')
 
         with open('../../_data/stagione_2022_2023/giornata_1.csv', 'w') as f:
             f.write('id,home,score,away\n')
@@ -221,7 +254,7 @@ class Giornata():
 
 
 if __name__ == "__main__":
-    giornata = Giornata('../data/giornata1.json')
+    giornata = Giornata('../data/giornata1.json', '../data/Classifica_1.csv')
     giornata.genera_riepilogo_giornata()
     for i in range(1,6):
         giornata.genera_partita(i)
