@@ -101,17 +101,17 @@ class Giornata():
         risultato = self.partite[id_partita]['risultato']
         return nome_squadra_casa, nome_squadra_trasferta, risultato
 
-    def genera_riepilogo_giornata(self):
-        with open('../../stagioni/2022_2023/giornate/1/1.html', 'w') as f:
+    def genera_riepilogo_giornata(self, stagione, giornata):
+        with open(f'../../stagioni/{stagione}/giornate/{giornata}/{giornata}.html', 'w') as f:
             f.write('---\n')
-            f.write('layout: giornata_2022_2023\n')
-            f.write('title: Giornata 1\n')
-            f.write('permalink: /2022_2023/giornate/1\n')
+            f.write(f'layout: giornata_{stagione}\n')
+            f.write(f'title: Giornata {giornata}\n')
+            f.write(f'permalink: /{stagione}/giornate/{giornata}\n')
             f.write('---\n\n')
             
             f.write('<h1>Risultati</h1>\n')
             f.write('<table>\n')
-            f.write('  {% for item in site.data.stagione_2022_2023.giornata_1 %}\n')
+            f.write('  {% for item in site.data.stagione_' + stagione + '.giornata_' + giornata + ' %}\n')
             f.write('    <tr>\n')
             f.write('      <td>{{ item.home }}</td>\n')
             f.write('      <td>{{ item.score }}</td>\n')
@@ -135,7 +135,7 @@ class Giornata():
                 f.write('    </tr>\n')
             f.write('  </table>\n')
 
-        with open('../../_data/stagione_2022_2023/giornata_1.csv', 'w') as f:
+        with open(f'../../_data/stagione_{stagione}/giornata_{giornata}.csv', 'w') as f:
             f.write('id,home,score,away\n')
             for i, partita in self.partite.items():
                 id_squadra_casa = partita['home']['id_squadra']
@@ -148,15 +148,15 @@ class Giornata():
                 f.write(f'{i},{nome_squadra_casa},{risultato},{nome_squadra_trasferta}\n')
 
 
-    def genera_partita(self, id_partita):
+    def genera_partita(self, stagione, giornata, id_partita):
         nome_squadra_casa, nome_squadra_trasferta, risultato = self.get_title(id_partita)
         title = f'{nome_squadra_casa} ({risultato}) {nome_squadra_trasferta}'
 
-        with open(f'../../stagioni/2022_2023/giornate/1/partite/{id_partita}.html', 'w') as f:
+        with open(f'../../stagioni/{stagione}/giornate/{giornata}/partite/{id_partita}.html', 'w') as f:
             f.write('---\n')
-            f.write('layout: partita_2022_2023\n')
+            f.write(f'layout: partita_{stagione}\n')
             f.write(f'title: {title}\n')
-            f.write(f'permalink: /2022_2023/giornate/1/partite/{id_partita}\n')
+            f.write(f'permalink: /{stagione}/giornate/{giornata}/partite/{id_partita}\n')
             f.write('---\n\n')
 
             # Titolari
@@ -255,6 +255,6 @@ class Giornata():
 
 if __name__ == "__main__":
     giornata = Giornata('../data/giornata1.json', '../data/Classifica_1.csv')
-    giornata.genera_riepilogo_giornata()
+    giornata.genera_riepilogo_giornata(stagione='2022_2023', giornata='1')
     for i in range(1,6):
-        giornata.genera_partita(i)
+        giornata.genera_partita(stagione='2022_2023', giornata='1', id_partita=i)

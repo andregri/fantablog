@@ -10,15 +10,15 @@ with open('../../_data/fantasquadre.yml', 'r') as f:
     id2fantasquadra=yaml.safe_load(f)
 
 
-def generate_file(row, svg, stat):
+def generate_file(stagione, row, svg, stat):
     id = int(row['Nome utente'])
     nome = id2fantasquadra[id]['name']
-    with open(f'../../stagioni/2022_2023/pronostici/{id}.md', 'w') as f:
+    with open(f'../../stagioni/{stagione}/pronostici/{id}.md', 'w') as f:
         # front matter
         f.write('---\n')
         f.write('layout: pronostici\n')
         f.write(f'title: I pronostici di {nome}\n')
-        f.write(f'permalink: /2022_2023/pronostici/{id}\n')
+        f.write(f'permalink: /{stagione}/pronostici/{id}\n')
         f.write(f'squadre: [1,2,3,4,5,6,7,8,9,10]\n')
         f.write('---\n')
 
@@ -36,12 +36,12 @@ def generate_file(row, svg, stat):
         f.write('<div>' + svg + '</div>\n')
 
 
-def generate_summary_file(svg):
-    with open(f'../../stagioni/2022_2023/pronostici/pronostici.html', 'w') as f:
+def generate_summary_file(stagione, svg):
+    with open(f'../../stagioni/{stagione}/pronostici/pronostici.html', 'w') as f:
         f.write('---\n')
         f.write('layout: pronostici\n')
-        f.write('title: I pronostici della stagione 2022_2023\n')
-        f.write('permalink: /2022_2023/pronostici\n')
+        f.write(f'title: I pronostici della stagione {stagione}\n')
+        f.write(f'permalink: /{stagione}/pronostici\n')
         f.write('squadre: [1,2,3,4,5,6,7,8,9,10]\n')
         f.write('---\n')
         f.write(svg)
@@ -91,9 +91,9 @@ def team2position(rows):
     return freq_dict
 
 
-def read_csv():
+def read_csv(stagione):
     # Read results of forecasts from csv file exported by Google Forms
-    with open('../data/pronostici-2022_2023.csv', newline='') as csvfile:
+    with open(f'../data/pronostici-{stagione}.csv', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         rows = []
         for row in reader:
@@ -102,7 +102,7 @@ def read_csv():
     return rows
 
 
-def export_all_files(rows):
+def export_all_files(stagione, rows):
     dict = team2position(rows)
     for row in rows:
         # generate svg
@@ -115,13 +115,13 @@ def export_all_files(rows):
 
         stat = stats(y)
 
-        generate_file(row, svg, stat)
+        generate_file(stagione, row, svg, stat)
 
 
-def export_summary_file(rows):
+def export_summary_file(stagione, rows):
     svg = generate_histogram_svg_summary(rows)
     clean_svg = svg.split("\n", 3)
-    generate_summary_file(clean_svg[3])
+    generate_summary_file(stagione, clean_svg[3])
 
 
 def generate_histogram_svg(x, y):
@@ -185,6 +185,6 @@ def stats(freqs):
 
 
 if __name__ == "__main__":
-    rows = read_csv()
-    export_all_files(rows)
-    export_summary_file(rows)
+    rows = read_csv(stagione='2022_2023')
+    export_all_files(stagione='2022_2023', rows=rows)
+    export_summary_file(stagione='2022_2023', rows=rows)
