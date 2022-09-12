@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Calendario Coppa Box 2022 - 2023
-permalink: /2022-2023/calendario-coppa
+permalink: /2022_2023/calendario-coppa
 ---
 
 <ul>

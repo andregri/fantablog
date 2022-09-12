@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Calendario 2022-2023
-permalink: 2022-2023/calendario
+title: Calendario 2022_2023
+permalink: /2022_2023/calendario
 ---
 
 <ul>

@@ -1,7 +1,7 @@
 ---
 layout: page
-title: Mercati 2022-2023
-permalink: 2022-2023/mercati
+title: Mercati 2022_2023
+permalink: /2022_2023/mercati
 ---
 
 - [Asta iniziale](asta-iniziale)

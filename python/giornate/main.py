@@ -102,11 +102,11 @@ class Giornata():
         return nome_squadra_casa, nome_squadra_trasferta, risultato
 
     def genera_riepilogo_giornata(self):
-        with open('../../stagioni/2022-2023/giornate/1/1.html', 'w') as f:
+        with open('../../stagioni/2022_2023/giornate/1/1.html', 'w') as f:
             f.write('---\n')
-            f.write('layout: giornata_22_23\n')
+            f.write('layout: giornata_2022_2023\n')
             f.write('title: Giornata 1\n')
-            f.write('permalink: /2022-2023/giornate/1\n')
+            f.write('permalink: /2022_2023/giornate/1\n')
             f.write('---\n\n')
             
             f.write('<h1>Risultati</h1>\n')
@@ -152,11 +152,11 @@ class Giornata():
         nome_squadra_casa, nome_squadra_trasferta, risultato = self.get_title(id_partita)
         title = f'{nome_squadra_casa} ({risultato}) {nome_squadra_trasferta}'
 
-        with open(f'../../stagioni/2022-2023/giornate/1/partite/{id_partita}.html', 'w') as f:
+        with open(f'../../stagioni/2022_2023/giornate/1/partite/{id_partita}.html', 'w') as f:
             f.write('---\n')
-            f.write('layout: partita_22_23\n')
+            f.write('layout: partita_2022_2023\n')
             f.write(f'title: {title}\n')
-            f.write(f'permalink: /2022-2023/giornate/1/partite/{id_partita}\n')
+            f.write(f'permalink: /2022_2023/giornate/1/partite/{id_partita}\n')
             f.write('---\n\n')
 
             # Titolari
