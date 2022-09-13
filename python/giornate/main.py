@@ -1,6 +1,7 @@
 import json
 import yaml
 import csv
+import argparse
 
 
 # Read map from ID to Fantasquadra name
@@ -85,6 +86,7 @@ class Giornata():
         calciatore['gol_subiti']      = bonus_list[3]
         calciatore['rigori_parati']   = bonus_list[4]
         calciatore['rigori_sbagliati'] = bonus_list[5]
+        calciatore['rigori_segnati']  = bonus_list[6]
         calciatore['autogol']         = bonus_list[7]
         calciatore['porta_inviolata'] = bonus_list[10]
         calciatore['assist_bronzo']   = bonus_list[12]
@@ -216,6 +218,9 @@ class Giornata():
                 for _ in range(calciatore['ammonizioni']):
                     bonus += '<img src="/assets/img/ammonito.png" alt="Giallo">'
 
+                for _ in range(calciatore['espulsioni']):
+                    bonus += '<img src="/assets/img/espulso.png" alt="Rosso">'
+
                 for _ in range(calciatore['gol_fatti']):
                     bonus += '<img src="/assets/img/golFatto.png" alt="Gol">'
 
@@ -227,6 +232,9 @@ class Giornata():
 
                 for _ in range(calciatore['rigori_sbagliati']):
                     bonus += '<img src="/assets/img/rigoreSbagliato.png" alt="Rigore Sbagliato">'
+                
+                for _ in range(calciatore['rigori_segnati']):
+                    bonus += '<img src="/assets/img/rigoreSegnato.png" alt="Rigore Segnato">'
 
                 for _ in range(calciatore['porta_inviolata']):
                     bonus += '<img src="/assets/img/portiereImbattuto.png" alt="Portiere imbattuto">'
@@ -254,7 +262,12 @@ class Giornata():
 
 
 if __name__ == "__main__":
-    giornata = Giornata('../data/giornata1.json', '../data/Classifica_1.csv')
-    giornata.genera_riepilogo_giornata(stagione='2022_2023', giornata='1')
+    parser = argparse.ArgumentParser(description='Genera i file per una giornata')
+    parser.add_argument('stagione', type=str, help='stagione e.g. 2022_2023')
+    parser.add_argument('giornata', type=str, help='giornata e.g. 1')
+    args = parser.parse_args()
+
+    giornata = Giornata(f'../data/giornata{args.giornata}.json', f'../data/Classifica_{args.giornata}.csv')
+    giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=args.giornata)
     for i in range(1,6):
-        giornata.genera_partita(stagione='2022_2023', giornata='1', id_partita=i)
+        giornata.genera_partita(stagione=args.stagione, giornata=args.giornata, id_partita=i)
