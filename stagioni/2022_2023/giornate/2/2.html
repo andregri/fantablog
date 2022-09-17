@@ -1,10 +1,15 @@
 ---
-layout: giornata_2022_2023
+layout: page
 title: Giornata 2
 permalink: /2022_2023/giornate/2
 ---
 
-<h1>Risultati</h1>
+<a href=".">Riepilogo</a>
+{% for item in site.data.stagione_2022_2023.giornata_2%}
+  || <a href="partite/{{ item.id }}">
+    {{ item.home }} ({{ item.score }}) {{ item.away }}
+  </a>
+{% endfor %}<h1>Risultati</h1>
 <table>
   {% for item in site.data.stagione_2022_2023.giornata_2 %}
     <tr>

@@ -95,6 +95,7 @@ class Giornata():
 
         return calciatore
 
+
     def get_title(self, id_partita):
         id_squadra_casa = self.partite[id_partita]['home']['id_squadra']
         nome_squadra_casa = id2fantasquadra[id_squadra_casa]
@@ -103,13 +104,16 @@ class Giornata():
         risultato = self.partite[id_partita]['risultato']
         return nome_squadra_casa, nome_squadra_trasferta, risultato
 
+
     def genera_riepilogo_giornata(self, stagione, giornata):
         with open(f'../../stagioni/{stagione}/giornate/{giornata}/{giornata}.html', 'w') as f:
             f.write('---\n')
-            f.write(f'layout: giornata_{stagione}\n')
+            f.write(f'layout: page\n')
             f.write(f'title: Giornata {giornata}\n')
             f.write(f'permalink: /{stagione}/giornate/{giornata}\n')
             f.write('---\n\n')
+
+            self.genera_navigazione(file=f, is_riepilogo=True, giornata=giornata)
             
             f.write('<h1>Risultati</h1>\n')
             f.write('<table>\n')
@@ -156,10 +160,12 @@ class Giornata():
 
         with open(f'../../stagioni/{stagione}/giornate/{giornata}/partite/{id_partita}.html', 'w') as f:
             f.write('---\n')
-            f.write(f'layout: partita_{stagione}\n')
+            f.write(f'layout: page\n')
             f.write(f'title: {title}\n')
             f.write(f'permalink: /{stagione}/giornate/{giornata}/partite/{id_partita}\n')
             f.write('---\n\n')
+
+            self.genera_navigazione(file=f, is_riepilogo=False, giornata=giornata)
 
             # Titolari
             f.write('<h1>Titolari</h1>\n')
@@ -169,7 +175,25 @@ class Giornata():
             f.write('<h1>Panchina</h1>\n')
             self.genera_tabella_formazioni(f, id_partita, 11, 17)
     
-    
+
+    def genera_navigazione(self, file, is_riepilogo, giornata):
+        if is_riepilogo:
+            file.write('<a href=".">Riepilogo</a>\n')
+        else:
+            file.write('<a href="..">Riepilogo</a>\n')
+
+        file.write('{% for item in site.data.stagione_2022_2023.giornata_' + str(giornata) + '%}\n')
+        
+        if is_riepilogo:
+            file.write('  || <a href="partite/{{ item.id }}">\n')
+        else:
+            file.write('  || <a href="{{ item.id }}">\n')
+        
+        file.write('    {{ item.home }} ({{ item.score }}) {{ item.away }}\n')
+        file.write('  </a>\n')
+        file.write('{% endfor %}')
+
+
     def genera_tabella_formazioni(self, f, id_partita, start_index, stop_index):
         f.write('<table>\n')
         f.write('  <tr>\n')

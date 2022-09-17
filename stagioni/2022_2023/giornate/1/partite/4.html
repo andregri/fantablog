@@ -1,10 +1,15 @@
 ---
-layout: partita_2022_2023
+layout: page
 title: ApoelKan (2-4) Real Pollo
 permalink: /2022_2023/giornate/1/partite/4
 ---
 
-<h1>Titolari</h1>
+<a href="..">Riepilogo</a>
+{% for item in site.data.stagione_2022_2023.giornata_1%}
+  || <a href="{{ item.id }}">
+    {{ item.home }} ({{ item.score }}) {{ item.away }}
+  </a>
+{% endfor %}<h1>Titolari</h1>
 <table>
   <tr>
     <th>Nome</th>
