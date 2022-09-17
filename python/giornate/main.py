@@ -43,9 +43,14 @@ class Giornata():
                 for field, squadra in zip(['home', 'away'], squadre):
                     tmp_squadra = {}
                     tmp_squadra['id_squadra'] = squadra['id']
-                    tmp_squadra['modulo'] = squadra['m']
+
+                    moduli = squadra['m'].split(';')
+                    tmp_squadra['modulo_iniziale'] = moduli[0]
+                    tmp_squadra['modulo_finale']   = moduli[1]
+                    
                     tmp_squadra['punti'] = squadra['t']
                     tmp_squadra['mod_difesa'] = squadra['ap'][2]
+                    tmp_squadra['mod_fairplay'] = squadra['ap'][5]
 
                     tmp_squadra['calciatori'] = []
 
@@ -174,6 +179,30 @@ class Giornata():
             # Panchina
             f.write('<h1>Panchina</h1>\n')
             self.genera_tabella_formazioni(f, id_partita, 11, 17)
+
+            f.write('<table>\n')
+            # MODIFICATORE DIFESA
+            f.write(f'  <tr>\n')
+            f.write(f'    <td>{self.partite[id_partita]["home"]["mod_difesa"]}</td>\n')
+            f.write(f'    <td style="text-align: center" colspan="7">Modificatore difesa</td>\n')
+            f.write(f'    <td>{self.partite[id_partita]["away"]["mod_difesa"]}</td>\n')
+            f.write(f'  </tr>\n')
+
+            # FAIRPLAY
+            f.write(f'  <tr>\n')
+            f.write(f'    <td>{self.partite[id_partita]["home"]["mod_fairplay"]}</td>\n')
+            f.write(f'    <td style="text-align: center" colspan="7">Bonus fairplay</td>\n')
+            f.write(f'    <td>{self.partite[id_partita]["away"]["mod_fairplay"]}</td>\n')
+            f.write(f'  </tr>\n')
+
+            # PUNTI TOTALI
+            f.write(f'  <tr>\n')
+            f.write(f'    <td>{self.partite[id_partita]["home"]["punti"]}</td>\n')
+            f.write(f'    <td style="text-align: center" colspan="7">Punti totali</td>\n')
+            f.write(f'    <td>{self.partite[id_partita]["away"]["punti"]}</td>\n')
+            f.write(f'  </tr>\n')
+
+            f.write('</table>\n')
     
 
     def genera_navigazione(self, file, is_riepilogo, giornata):
@@ -196,7 +225,17 @@ class Giornata():
 
     def genera_tabella_formazioni(self, f, id_partita, start_index, stop_index):
         f.write('<table>\n')
-        f.write('  <tr>\n')
+        
+        # Aggiungi i nomi delle squadre all'inizio della tabella
+        nomi_squadre = self.get_title(id_partita=id_partita)
+        f.write(f'  <tr>\n')
+        for i, field in zip(range(2), ['home', 'away']):
+            modulo = self.partite[id_partita][field]["modulo_finale"]
+            f.write(f'    <td colspan="4">{nomi_squadre[i]} ({modulo})</td>\n')
+            if i == 0:
+                f.write('    <td></td>\n')
+        f.write(f'  </tr>\n')
+
         for i in range(2):
             f.write('    <th>Nome</th>\n')
             f.write('    <th></th>\n')
@@ -282,6 +321,7 @@ class Giornata():
                 if field == 'home':
                     f.write(f'    <td></td>\n')
             f.write(f'  </tr>\n')
+
         f.write('</table>\n')
 
 
