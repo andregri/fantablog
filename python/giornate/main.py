@@ -2,6 +2,7 @@ import json
 import yaml
 import csv
 import argparse
+from pathlib import Path
 
 
 # Read map from ID to Fantasquadra name
@@ -330,6 +331,9 @@ if __name__ == "__main__":
     parser.add_argument('stagione', type=str, help='stagione e.g. 2022_2023')
     parser.add_argument('giornata', type=str, help='giornata e.g. 1')
     args = parser.parse_args()
+
+    # Crea la struttura di cartelle
+    Path(f"../../stagioni/{args.stagione}/giornate/{args.giornata}/partite").mkdir(parents=True, exist_ok=True)
 
     giornata = Giornata(f'../data/giornata{args.giornata}.json', f'../data/Classifica_{args.giornata}.csv')
     giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=args.giornata)
