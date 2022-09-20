@@ -339,3 +339,13 @@ if __name__ == "__main__":
     giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=args.giornata)
     for i in range(1,6):
         giornata.genera_partita(stagione=args.stagione, giornata=args.giornata, id_partita=i)
+
+    # Aggiorna _data/stagione_xxxx_yyyy/calendario.yml
+    calendario = None
+    with open(f'../../_data/stagione_{args.stagione}/calendario.yml', 'r') as f:
+        calendario = yaml.safe_load(f)
+        calendario.insert(int(args.giornata)-1, {'giornata': int(args.giornata)})
+
+    with open(f'../../_data/stagione_{args.stagione}/calendario.yml', 'w') as f:
+        text = yaml.safe_dump(calendario)
+        f.write(text)
