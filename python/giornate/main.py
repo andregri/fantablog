@@ -274,14 +274,12 @@ class Giornata():
                 nome = calciatore["nome"]
                 team = calciatore["team"].upper()
                 
-                # VOTO is 56 when player has not played
-                voto = calciatore["voto"]
-                if voto > 50:
-                    voto = '-'
-                
-                # FANTAVOTO is 100 when player has not played
+                # VOTO and FANTAVOTO are invalid when player has not played
+                voto      = calciatore["voto"]
                 fantavoto = calciatore["fantavoto"]
-                if fantavoto == 100:
+
+                if calciatore['sostituzione'] == 'U':
+                    voto      = '-'
                     fantavoto = '-'
 
                 # BONUS
@@ -323,11 +321,27 @@ class Giornata():
                 for _ in range(calciatore['assist_oro']):
                     bonus += '<img src="/assets/img/assistGold.png" alt="Assist oro">'
 
-                f.write(f'    <td><span style="display: block">{ruolo_img} {nome}</span><span style="display: block">{bonus}</span></td>\n')
+                if calciatore['sostituzione'] == 'U':
+                    bonus += '<img src="/assets/img/out.webp" alt="Uscito">'
+
+                if calciatore['sostituzione'] == 'E':
+                    bonus += '<img src="/assets/img/in.webp" alt="Entrato">'
+
+                # Add style to footballer name
+                styled_nome = nome
+                # Make bolder the 11 footballers who played effectively
+                if (calciatore['sostituzione'] != 'U' and stop_index < 11) or (calciatore['sostituzione'] == 'E'):
+                    styled_nome = '<b>' + styled_nome + '</b>'
+                
+                # Draw line over footballers that was in the initial squad but they did not played
+                if calciatore['sostituzione'] == 'U' and stop_index < 11:
+                    styled_nome = '<del>' + styled_nome + '</del>'
+
+                f.write(f'    <td><span style="display: block">{ruolo_img} {styled_nome}</span><span style="display: block">{bonus}</span></td>\n')
                 f.write(f'    <td>{team}</td>\n')
                 f.write(f'    <td>{voto}</td>\n')
                 f.write(f'    <td>{fantavoto}</td>\n')
-                if field == 'home':
+                if field == 'home': # column to separate from the other squad
                     f.write(f'    <td></td>\n')
             f.write(f'  </tr>\n')
 
