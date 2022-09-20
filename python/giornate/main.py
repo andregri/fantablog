@@ -175,25 +175,32 @@ class Giornata():
 
             # Titolari
             f.write('<h1>Titolari</h1>\n')
-            self.genera_tabella_formazioni(f, id_partita, 0, 10)
+            self.genera_tabella_formazioni(f, id_partita, 0, 10, aggiungi_nomi_squadre=True)
 
             # Panchina
             f.write('<h1>Panchina</h1>\n')
-            self.genera_tabella_formazioni(f, id_partita, 11, 17)
+            self.genera_tabella_formazioni(f, id_partita, 11, 17, aggiungi_nomi_squadre=False)
 
             f.write('<table>\n')
             # MODIFICATORE DIFESA
             f.write(f'  <tr>\n')
-            f.write(f'    <td>{self.partite[id_partita]["home"]["mod_difesa"]}</td>\n')
+            f.write(f'    <td>{int(self.partite[id_partita]["home"]["mod_difesa"])}</td>\n')
             f.write(f'    <td style="text-align: center" colspan="7">Modificatore difesa</td>\n')
-            f.write(f'    <td>{self.partite[id_partita]["away"]["mod_difesa"]}</td>\n')
+            f.write(f'    <td>{int(self.partite[id_partita]["away"]["mod_difesa"])}</td>\n')
             f.write(f'  </tr>\n')
 
             # FAIRPLAY
             f.write(f'  <tr>\n')
-            f.write(f'    <td>{self.partite[id_partita]["home"]["mod_fairplay"]}</td>\n')
+            f.write(f'    <td>{int(self.partite[id_partita]["home"]["mod_fairplay"])}</td>\n')
             f.write(f'    <td style="text-align: center" colspan="7">Bonus fairplay</td>\n')
-            f.write(f'    <td>{self.partite[id_partita]["away"]["mod_fairplay"]}</td>\n')
+            f.write(f'    <td>{int(self.partite[id_partita]["away"]["mod_fairplay"])}</td>\n')
+            f.write(f'  </tr>\n')
+
+            # MODULO FINALE
+            f.write(f'  <tr>\n')
+            f.write(f'    <td>{self.partite[id_partita]["home"]["modulo_finale"]}</td>\n')
+            f.write(f'    <td style="text-align: center" colspan="7">Modulo finale</td>\n')
+            f.write(f'    <td>{self.partite[id_partita]["away"]["modulo_finale"]}</td>\n')
             f.write(f'  </tr>\n')
 
             # PUNTI TOTALI
@@ -224,18 +231,19 @@ class Giornata():
         file.write('{% endfor %}')
 
 
-    def genera_tabella_formazioni(self, f, id_partita, start_index, stop_index):
+    def genera_tabella_formazioni(self, f, id_partita, start_index, stop_index, aggiungi_nomi_squadre=False):
         f.write('<table>\n')
         
         # Aggiungi i nomi delle squadre all'inizio della tabella
-        nomi_squadre = self.get_title(id_partita=id_partita)
-        f.write(f'  <tr>\n')
-        for i, field in zip(range(2), ['home', 'away']):
-            modulo = self.partite[id_partita][field]["modulo_finale"]
-            f.write(f'    <td colspan="4">{nomi_squadre[i]} ({modulo})</td>\n')
-            if i == 0:
-                f.write('    <td></td>\n')
-        f.write(f'  </tr>\n')
+        if aggiungi_nomi_squadre:
+            nomi_squadre = self.get_title(id_partita=id_partita)
+            f.write(f'  <tr>\n')
+            for i, field in zip(range(2), ['home', 'away']):
+                modulo = self.partite[id_partita][field]["modulo_iniziale"]
+                f.write(f'    <td colspan="4">{nomi_squadre[i]} ({modulo})</td>\n')
+                if i == 0:
+                    f.write('    <td></td>\n')
+            f.write(f'  </tr>\n')
 
         for i in range(2):
             f.write('    <th>Nome</th>\n')
@@ -344,7 +352,9 @@ if __name__ == "__main__":
     calendario = None
     with open(f'../../_data/stagione_{args.stagione}/calendario.yml', 'r') as f:
         calendario = yaml.safe_load(f)
-        calendario.insert(int(args.giornata)-1, {'giornata': int(args.giornata)})
+        # aggiungi giornata al calendario solo se non esiste già
+        if not dict(giornata=int(args.giornata)) in calendario:
+            calendario.insert(int(args.giornata)-1, {'giornata': int(args.giornata)})
 
     with open(f'../../_data/stagione_{args.stagione}/calendario.yml', 'w') as f:
         text = yaml.safe_dump(calendario)
