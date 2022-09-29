@@ -28,9 +28,8 @@ twitter_username: jekyllrb
 github_username:  jekyll
 
 header_pages:
-  - about.md
   - stagioni/2022_2023/stagione.md
-  - stagioni/2023_2024/stagione.md
+  - about.md
 
 # Build settings
 theme: minima
