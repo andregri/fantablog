@@ -278,9 +278,15 @@ class Giornata():
                 voto      = calciatore["voto"]
                 fantavoto = calciatore["fantavoto"]
 
-                if calciatore['sostituzione'] == 'U':
+                if calciatore['sostituzione'] == 'U' or voto > 50:
                     voto      = '-'
                     fantavoto = '-'
+                
+                # caso particolare di un s.v. (senza voto) che ha fatto un
+                # bonus / malus (es. ammonizione) e quindi riceve un voto
+                if calciatore['sostituzione'] == 'E' and calciatore["voto"] > 50:
+                    voto = 's.v'
+                    fantavoto = 's.v.'
 
                 # BONUS
                 bonus = ''
