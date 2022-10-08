@@ -1,6 +1,7 @@
 - giornata: 1
 - giornata: 2
 - giornata: 3
-- coppa: 1
-  fase_coppa: Gironi
-  giornata: 9
+- giornata: 4
+#- coppa: 1
+#  fase_coppa: Gironi
+#  giornata: 9
