@@ -63,7 +63,7 @@ class Giornata():
                     self.partite[id_partita][field] = tmp_squadra
 
     
-    def read_classifica_csv(self, filename):
+    def read_classifica_csv(self, filename, is_coppa=False):
         """
         Read csv file that contains all informations about
         the chart of a specific matchday
@@ -111,19 +111,27 @@ class Giornata():
         return nome_squadra_casa, nome_squadra_trasferta, risultato
 
 
-    def genera_riepilogo_giornata(self, stagione, giornata):
-        with open(f'../../stagioni/{stagione}/giornate/{giornata}/{giornata}.html', 'w') as f:
+    def genera_riepilogo_giornata(self, stagione, giornata, is_coppa=False):
+        permalink = f'{stagione}/giornate/{giornata}'
+        if is_coppa:
+            permalink = f'{stagione}/coppa/giornate/{giornata}'
+
+        with open(f'../../stagioni/{permalink}/{giornata}.html', 'w') as f:
             f.write('---\n')
             f.write(f'layout: page\n')
             f.write(f'title: Giornata {giornata}\n')
-            f.write(f'permalink: /{stagione}/giornate/{giornata}\n')
+            f.write(f'permalink: /{permalink}\n')
             f.write('---\n\n')
 
-            self.genera_navigazione(file=f, is_riepilogo=True, giornata=giornata)
+            self.genera_navigazione(file=f, is_riepilogo=True, giornata=giornata, is_coppa=is_coppa)
+
+            coppa = ''
+            if is_coppa:
+                coppa = 'coppa'
             
             f.write('<h1>Risultati</h1>\n')
             f.write('<table>\n')
-            f.write('  {% for item in site.data.stagione_' + stagione + '.giornata_' + giornata + ' %}\n')
+            f.write('  {% for item in site.data.stagione_' + stagione + '.giornata_' + coppa + giornata + ' %}\n')
             f.write('    <tr>\n')
             f.write('      <td>{{ item.home }}</td>\n')
             f.write('      <td>{{ item.score }}</td>\n')
@@ -132,22 +140,13 @@ class Giornata():
             f.write('  {% endfor %}\n')
             f.write('</table>\n')
 
-            f.write('<h1>Classifica</h1>\n')
-            f.write('  <table>\n')
-            f.write('    <tr>\n')
-            # Header row
-            for header in self.classifica[0].keys():
-                f.write(f'      <th>{header}</th>')
-            f.write('    </tr>\n')
-            # Value rows
-            for row in self.classifica:
-                f.write('    <tr>\n')
-                for value in row.values():
-                    f.write(f'      <td>{value}</td>\n')
-                f.write('    </tr>\n')
-            f.write('  </table>\n')
+            if not is_coppa:
+                self.genera_classifica(f, self.classifica)
+            else:
+                self.genera_classifica(f, self.classifica[0:5], 'A')
+                self.genera_classifica(f, self.classifica[6:],  'B')
 
-        with open(f'../../_data/stagione_{stagione}/giornata_{giornata}.csv', 'w') as f:
+        with open(f'../../_data/stagione_{stagione}/giornata_{coppa}{giornata}.csv', 'w') as f:
             f.write('id,home,score,away\n')
             for i, partita in self.partite.items():
                 id_squadra_casa = partita['home']['id_squadra']
@@ -159,19 +158,40 @@ class Giornata():
                 nome_squadra_casa, nome_squadra_trasferta, risultato = self.get_title(i)
                 f.write(f'{i},{nome_squadra_casa},{risultato},{nome_squadra_trasferta}\n')
 
+    
+    def genera_classifica(self, f, rows, nome=''):
+        f.write(f'<h1>Classifica {nome}</h1>\n')
+        f.write('  <table>\n')
+        f.write('    <tr>\n')
+        # Header row
+        for header in rows[0].keys():
+            f.write(f'      <th>{header}</th>')
+        f.write('    </tr>\n')
+        # Value rows
+        for row in rows:
+            f.write('    <tr>\n')
+            for value in row.values():
+                f.write(f'      <td>{value}</td>\n')
+            f.write('    </tr>\n')
+        f.write('  </table>\n')
 
-    def genera_partita(self, stagione, giornata, id_partita):
+
+    def genera_partita(self, stagione, giornata, id_partita, is_coppa=False):
         nome_squadra_casa, nome_squadra_trasferta, risultato = self.get_title(id_partita)
         title = f'{nome_squadra_casa} ({risultato}) {nome_squadra_trasferta}'
 
-        with open(f'../../stagioni/{stagione}/giornate/{giornata}/partite/{id_partita}.html', 'w') as f:
+        permalink = f'{stagione}/giornate/{giornata}/partite/{id_partita}'
+        if is_coppa:
+            permalink = f'{stagione}/coppa/giornate/{giornata}/partite/{id_partita}'
+
+        with open(f'../../stagioni/{permalink}.html', 'w') as f:
             f.write('---\n')
             f.write(f'layout: page\n')
             f.write(f'title: {title}\n')
-            f.write(f'permalink: /{stagione}/giornate/{giornata}/partite/{id_partita}\n')
+            f.write(f'permalink: /{permalink}\n')
             f.write('---\n\n')
 
-            self.genera_navigazione(file=f, is_riepilogo=False, giornata=giornata)
+            self.genera_navigazione(file=f, is_riepilogo=False, giornata=giornata, is_coppa=is_coppa)
 
             # Titolari
             f.write('<h1>Titolari</h1>\n')
@@ -213,13 +233,17 @@ class Giornata():
             f.write('</table>\n')
     
 
-    def genera_navigazione(self, file, is_riepilogo, giornata):
+    def genera_navigazione(self, file, is_riepilogo, giornata, is_coppa):
         if is_riepilogo:
             file.write('<a href=".">Riepilogo</a>\n')
         else:
             file.write('<a href="..">Riepilogo</a>\n')
 
-        file.write('{% for item in site.data.stagione_2022_2023.giornata_' + str(giornata) + '%}\n')
+        coppa = ''
+        if is_coppa:
+            coppa = 'coppa'
+
+        file.write('{% for item in site.data.stagione_2022_2023.giornata_' + coppa + str(giornata) + ' %}\n')
         
         if is_riepilogo:
             file.write('  || <a href="partite/{{ item.id }}">\n')
@@ -355,27 +379,56 @@ class Giornata():
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Genera i file per una giornata')
+    parser = argparse.ArgumentParser(description='''
+        Genera i file per una giornata
+
+        es. Per generare i file della prima giornata di campionato
+            python main.py 2022_2023 1
+        
+        es. Per generare i file della prima giornata di coppa
+            python main.py 2022_2023 1 --coppa=gironi
+    ''')
     parser.add_argument('stagione', type=str, help='stagione e.g. 2022_2023')
     parser.add_argument('giornata', type=str, help='giornata e.g. 1')
+    parser.add_argument('--coppa', type=str, help='fase della coppa, e.g. gironi')
     args = parser.parse_args()
 
     # Crea la struttura di cartelle
-    Path(f"../../stagioni/{args.stagione}/giornate/{args.giornata}/partite").mkdir(parents=True, exist_ok=True)
+    if args.coppa:
+        Path(f"../../stagioni/{args.stagione}/coppa/giornate/{args.giornata}/partite").mkdir(parents=True, exist_ok=True)
+    else:
+        Path(f"../../stagioni/{args.stagione}/giornate/{args.giornata}/partite").mkdir(parents=True, exist_ok=True)
+    
+    data_prefix_path = f'../data/{args.stagione}/'
+    if args.coppa:
+        data_prefix_path = f'../data/{args.stagione}/coppa/'
 
-    giornata = Giornata(f'../data/giornata{args.giornata}.json', f'../data/Classifica_{args.giornata}.csv')
-    giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=args.giornata)
+    giornata = Giornata(f'{data_prefix_path}/giornata{args.giornata}.json', f'{data_prefix_path}/Classifica_{args.giornata}.csv')
+    giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=args.giornata, is_coppa=args.coppa)
     for i in range(1,6):
-        giornata.genera_partita(stagione=args.stagione, giornata=args.giornata, id_partita=i)
+        giornata.genera_partita(stagione=args.stagione, giornata=args.giornata, id_partita=i, is_coppa=args.coppa)
 
     # Aggiorna _data/stagione_xxxx_yyyy/calendario.yml
-    calendario = None
-    with open(f'../../_data/stagione_{args.stagione}/calendario.yml', 'r') as f:
-        calendario = yaml.safe_load(f)
-        # aggiungi giornata al calendario solo se non esiste già
-        if not dict(giornata=int(args.giornata)) in calendario:
-            calendario.insert(int(args.giornata)-1, {'giornata': int(args.giornata)})
+    calendario_yaml_path = f'../../_data/stagione_{args.stagione}/calendario.yml'
+    if args.coppa:
+        calendario_yaml_path = f'../../_data/stagione_{args.stagione}/calendario_coppa.yml'
 
-    with open(f'../../_data/stagione_{args.stagione}/calendario.yml', 'w') as f:
+    calendario = None
+    with open(calendario_yaml_path, 'r') as f:
+        calendario = yaml.safe_load(f)
+
+        if not calendario:
+            calendario = []
+
+        data = dict(giornata=int(args.giornata))
+        if args.coppa:
+            data = dict(giornata=int(args.giornata), fase=args.coppa)
+
+        # aggiungi giornata al calendario solo se non esiste già
+        if not data in calendario:
+            calendario.insert(int(args.giornata)-1, data)
+
+
+    with open(calendario_yaml_path, 'w') as f:
         text = yaml.safe_dump(calendario)
         f.write(text)
