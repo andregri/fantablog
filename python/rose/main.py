@@ -1,3 +1,4 @@
+from pathlib import Path
 from roster import Rosters
 import yaml
 
@@ -8,7 +9,8 @@ with open('../../_data/fantasquadre.yml', 'r') as f:
     id2fantasquadra = {d['id']: d['name'] for d in data.values()}
 
 if __name__ == "__main__":
-    rosters = Rosters('../data/rose/asta_iniziale.xlsx')
+    excelfile_path = Path(__file__).parent.parent / 'data' / '2022_2023' / 'rose' / 'asta_iniziale.xlsx'
+    rosters = Rosters(excelfile_path.resolve())
 
     rosters_dict = {}
     rosters_dict[4480615] = rosters.list(0,1)
@@ -21,3 +23,7 @@ if __name__ == "__main__":
     rosters_dict[5332606] = rosters.list(4,1)
     rosters_dict[5332804] = rosters.list(5,0)
     rosters_dict[9242836] = rosters.list(5,1)
+
+
+    outdir_path = Path(__file__).parent.parent.parent / 'stagioni' / '2022_2023' / 'mercati' / 'asta_iniziale' / 'rose'
+    outdir_path.mkdir(parents=True, exist_ok=True)
