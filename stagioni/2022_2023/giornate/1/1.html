@@ -6,7 +6,7 @@ permalink: /2022_2023/giornate/1
 
 <a href=".">Riepilogo</a>
 {% for item in site.data.stagione_2022_2023.giornata_1%}
-  || <a href={% link stagioni/2022_2023/giornate/1/partite/{{ item.id }}.html %}>
+  || <a href=partite/{{ item.id }}.html>
     {{ item.home }} ({{ item.score }}) {{ item.away }}
   </a>
 {% endfor %}<h1>Risultati</h1>
