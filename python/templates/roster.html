@@ -1,0 +1,22 @@
+---
+layout: page
+title: {{ title }}
+permalink: {{ permalink }}
+---
+
+<table>
+    <tr>
+        <th>Ruolo</th>
+        <th>Calciatore</th>
+        <th>Squadra</th>
+        <th>Costo</th>
+    </tr>
+    {% for calciatore in calciatori %}
+    <tr>
+        <td> {{ calciatore.Role }} </td>
+        <td> {{ calciatore.Name }} </td>
+        <td> {{ calciatore.Team }} </td>
+        <td> {{ calciatore.Cost }} </td>
+    </tr>
+    {% endfor %}
+</table>

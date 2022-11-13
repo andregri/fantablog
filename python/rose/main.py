@@ -1,29 +1,54 @@
 from pathlib import Path
 from roster import Rosters
 import yaml
+import jinja2
+import argparse
 
-# Read map from ID to Fantasquadra name
-id2fantasquadra = {}
-with open('../../_data/fantasquadre.yml', 'r') as f:
-    data=yaml.safe_load(f)
-    id2fantasquadra = {d['id']: d['name'] for d in data.values()}
+HERE_PATH = Path(__file__).parent.parent
+OUTPUT_PATH = Path(__file__).parent.parent.parent / 'stagioni'
 
-if __name__ == "__main__":
-    excelfile_path = Path(__file__).parent.parent / 'data' / '2022_2023' / 'rose' / 'asta_iniziale.xlsx'
+
+if __name__ == "__main__":    
+    # CLI definitions
+    parser = argparse.ArgumentParser(description='''
+        Genera i file delle rose a partire da un file excel
+
+        es. python main.py 2022_2023 asta_iniziale
+    ''')
+    parser.add_argument('stagione', type=str, help='stagione e.g. 2022_2023')
+    parser.add_argument('file', type=str, help='nome del file excel e.g. asta_iniziale')
+    args = parser.parse_args()
+
+    # Create map of ids and team names
+    teamfile_path = HERE_PATH / 'data' / args.stagione / 'fantasquadre.yml'
+    fantasquadre_dict = {}
+    with open(teamfile_path.resolve(), 'r') as f:
+        data=yaml.safe_load(f)
+        fantasquadre_dict = {id: dict(name=data[id]['name'], row=data[id]['excel_row'], col=data[id]['excel_col']) for id in data}
+
+    # Parse the rosters from the excel file
+    excelfile_path = HERE_PATH / 'data' / args.stagione / 'rose' / f'{args.file}.xlsx'
     rosters = Rosters(excelfile_path.resolve())
 
     rosters_dict = {}
-    rosters_dict[4480615] = rosters.list(0,1)
-    rosters_dict[4480737] = rosters.list(1,0)
-    rosters_dict[4480837] = rosters.list(2,0)
-    rosters_dict[4481779] = rosters.list(2,1)
-    rosters_dict[4483105] = rosters.list(3,0)
-    rosters_dict[4485329] = rosters.list(3,1)
-    rosters_dict[5330685] = rosters.list(4,0)
-    rosters_dict[5332606] = rosters.list(4,1)
-    rosters_dict[5332804] = rosters.list(5,0)
-    rosters_dict[9242836] = rosters.list(5,1)
+    for id, data in fantasquadre_dict.items():
+        rosters_dict[id] = rosters.list(data['row'], data['col'])
 
-
-    outdir_path = Path(__file__).parent.parent.parent / 'stagioni' / '2022_2023' / 'mercati' / 'asta_iniziale' / 'rose'
+    # Create output directories structure
+    outdir_path = OUTPUT_PATH / args.stagione / 'mercati' / args.file / 'rose'
     outdir_path.mkdir(parents=True, exist_ok=True)
+
+    # Write roster html files
+    for id in fantasquadre_dict:
+        htmlfile_path = OUTPUT_PATH / args.stagione / 'mercati' / args.file / 'rose' / f'{id}.html'
+        with open(htmlfile_path.resolve(), 'w') as out_f:
+            templates_path = HERE_PATH / 'templates'
+            templateLoader = jinja2.FileSystemLoader(templates_path.resolve())
+            templateEnv = jinja2.Environment(loader=templateLoader)
+            template = templateEnv.get_template('roster.html')
+
+            title = fantasquadre_dict[id]['name']
+            permalink = f'/{args.stagione}/mercati/{args.file}/rose/{id}'
+            outputText = template.render(title=title, permalink=permalink, calciatori=rosters_dict[id])
+
+            out_f.write(outputText)
