@@ -15,6 +15,6 @@ squadre: [1,2,3,4,5,6,7,8,9,10]
 
 {% for id in page.squadre %}
     <ul>
-        <li><a href="rose/{{ site.data.fantasquadre[id].id }}">{{ site.data.fantasquadre[id].name }}</a></li>
+        <li><a href="{{ site.baseurl }}/2022_2023/mercati/asta_iniziale/rose/{{ site.data.fantasquadre[id].id }}">{{ site.data.fantasquadre[id].name }}</a></li>
     </ul>
 {% endfor %}
