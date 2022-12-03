@@ -1,0 +1,27 @@
+---
+layout: page
+title: {{ title }}
+permalink: {{ permalink }}
+---
+
+<a href="{{ summary_link }}">Riepilogo</a>
+
+{% for id in fantasquadre %}
+    - <a href="{{ fantasquadre[id].link }}">{{ fantasquadre[id].name }}</a>
+{% endfor %}
+
+<h1> I pronostici </h1>
+<ol>
+    {% for fantasquadra in classifica %}
+        <li>{{ fantasquadra }}</li>
+    {% endfor %}
+</ol>
+
+<h1> Come è stato pronosticato {{ who }}? </h1>
+
+<ul>
+    <li>Media: {{ average }}</li>
+    <li>Mediana: {{ mediana }}</li>
+</ul>
+
+{{ svg }}

@@ -2,7 +2,12 @@ import yaml
 import csv
 import matplotlib.pyplot as plt
 import io
+import jinja2
+from pathlib import Path
 
+
+HERE_PATH = Path(__file__).parent.parent
+OUTPUT_PATH = Path(__file__).parent.parent.parent / 'stagioni'
 
 # Read map from ID to Fantasquadra name
 id2fantasquadra = {}
@@ -11,53 +16,78 @@ with open('../../_data/fantasquadre.yml', 'r') as f:
 
 
 def generate_file(stagione, row, svg, stat):
-    id = int(row['Nome utente'])
-    nome = id2fantasquadra[id]['name']
-    with open(f'../../stagioni/{stagione}/pronostici/{id}.md', 'w') as f:
-        # front matter
-        f.write('---\n')
-        f.write('layout: pronostici\n')
-        f.write(f'title: I pronostici di {nome}\n')
-        f.write(f'permalink: /{stagione}/pronostici/{id}\n')
-        f.write(f'squadre: [1,2,3,4,5,6,7,8,9,10]\n')
-        f.write('---\n')
+    teamfile_path = HERE_PATH / 'data' / stagione / 'fantasquadre.yml'
+    fantasquadre_dict = {}
+    with open(teamfile_path.resolve(), 'r') as f:
+        data=yaml.safe_load(f)
+        fantasquadre_dict = {id: dict(
+            name=data[id]['name'],
+            link="{{ site.baseurl }}" + f"/{stagione}/pronostici/{id}.html"
+            ) for id in data}
 
-        # classifica
-        f.write('---\n')
-        f.write('# I pronostici\n')
-        for i in range(1,11):
-            key = f'{i}° classificato'
-            f.write(f'{i}. {row[key]}\n\n')
+    fantasquadra_id = int(row['Nome utente'])
+    htmlfile_path = OUTPUT_PATH / stagione / 'pronostici' / f'{fantasquadra_id}.html'
+    with open(htmlfile_path.resolve(), 'w') as out_f:
+        templates_path = HERE_PATH / 'templates'
+        templateLoader = jinja2.FileSystemLoader(templates_path.resolve())
+        templateEnv = jinja2.Environment(loader=templateLoader)
+        template = templateEnv.get_template('pronostici_detail.html')
 
-        # statistiche
-        f.write(f'# Come è stato pronosticato {nome}?\n')
-        f.write(f'Media: {stat["avg"]}\n\n')
-        f.write(f'Mediana: {stat["mediana"]}\n\n')
-        f.write('<div>' + svg + '</div>\n')
+        who = fantasquadre_dict[fantasquadra_id]['name']
+        title = f"I pronostici di {who}"
+        permalink = f'/{stagione}/pronostici/{fantasquadra_id}.html'
+        outputText = template.render(
+            title=title, permalink=permalink, stagione=stagione,
+            summary_link="{{ site.baseurl }}" + f"/{stagione}/pronostici/pronostici.html",
+            who=who, fantasquadre=fantasquadre_dict, svg=svg,
+            classifica=[row[f'{i}° classificato'] for i in range(1,11)],
+            average=stat["avg"], mediana=stat["mediana"])
+
+        out_f.write(outputText)
 
 
 def generate_summary_file(stagione, svg):
-    with open(f'../../stagioni/{stagione}/pronostici/pronostici.html', 'w') as f:
-        f.write('---\n')
-        f.write('layout: pronostici\n')
-        f.write(f'title: I pronostici della stagione {stagione}\n')
-        f.write(f'permalink: /{stagione}/pronostici\n')
-        f.write('squadre: [1,2,3,4,5,6,7,8,9,10]\n')
-        f.write('---\n')
-        f.write(svg)
+    teamfile_path = HERE_PATH / 'data' / stagione / 'fantasquadre.yml'
+    fantasquadre_list = []
+    with open(teamfile_path.resolve(), 'r') as f:
+        data=yaml.safe_load(f)
+        fantasquadre_list = [dict(
+            id=id,
+            name=data[id]['name'],
+            link="{{ site.baseurl }}/2022_2023/pronostici/"+str(id)+".html"
+            ) for id in data]
+
+    htmlfile_path = OUTPUT_PATH / stagione / 'pronostici' / 'pronostici.html'
+    with open(htmlfile_path.resolve(), 'w') as out_f:
+        templates_path = HERE_PATH / 'templates'
+        templateLoader = jinja2.FileSystemLoader(templates_path.resolve())
+        templateEnv = jinja2.Environment(loader=templateLoader)
+        template = templateEnv.get_template('pronostici_summary.html')
+
+        title = f"I pronostici della stagione {stagione}"
+        permalink = f'/{stagione}/pronostici/pronostici.html'
+        outputText = template.render(title=title, permalink=permalink, stagione=stagione, fantasquadre=fantasquadre_list, svg=svg)
+
+        out_f.write(outputText)
 
 
-def position2team(rows):
+def position2team(stagione, rows):
     # Prepare the dict
     # key is the chart position: e.g. 1st, 2nd, 3rd, etc...
     # value is the occurences of each team in that position
     # {1: {"Team1": 4, "Team2:3"}, 2: {...}, ... }
+    teamfile_path = HERE_PATH / 'data' / stagione / 'fantasquadre.yml'
+    fantasquadre_dict = {}
+    with open(teamfile_path.resolve(), 'r') as f:
+        data=yaml.safe_load(f)
+        fantasquadre_dict = {id: data[id]['name'] for id in data}
+
     freq_dict = {}
     for position in range(1, 11):
         freq_dict[position] = {}
         for row in rows:
             id = int(row['Nome utente'])
-            fantasquadra = id2fantasquadra[id]['name']
+            fantasquadra = fantasquadre_dict[id]
             freq_dict[position][fantasquadra] = 0
 
     for row in rows:
@@ -69,15 +99,21 @@ def position2team(rows):
     return freq_dict
 
 
-def team2position(rows):
+def team2position(stagione, rows):
     # Prepare the dict
     # key is the team name
     # value is the occurences of each team in all positions (1st, 2nd, 3rd, etc...)
     # {"Team1": {1: 4, 2: 0, ...}, "Team2": {1: 0, 2: 3, ...}, ...}
+    teamfile_path = HERE_PATH / 'data' / stagione / 'fantasquadre.yml'
+    fantasquadre_dict = {}
+    with open(teamfile_path.resolve(), 'r') as f:
+        data=yaml.safe_load(f)
+        fantasquadre_dict = {id: data[id]['name'] for id in data}
+
     freq_dict = {}
     for row in rows:
         id = int(row['Nome utente'])
-        fantasquadra = id2fantasquadra[id]['name']
+        fantasquadra = fantasquadre_dict[id]
         freq_dict[fantasquadra] = {}
         for position in range(1, 11):
             freq_dict[fantasquadra][position] = 0
@@ -93,7 +129,8 @@ def team2position(rows):
 
 def read_csv(stagione):
     # Read results of forecasts from csv file exported by Google Forms
-    with open(f'../data/pronostici-{stagione}.csv', newline='') as csvfile:
+    csv_file_path = HERE_PATH / "data" / stagione / f"pronostici-{stagione}.csv"
+    with open(csv_file_path.resolve(), newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         rows = []
         for row in reader:
@@ -103,11 +140,17 @@ def read_csv(stagione):
 
 
 def export_all_files(stagione, rows):
-    dict = team2position(rows)
+    teamfile_path = HERE_PATH / 'data' / stagione / 'fantasquadre.yml'
+    fantasquadre_dict = {}
+    with open(teamfile_path.resolve(), 'r') as f:
+        data=yaml.safe_load(f)
+        fantasquadre_dict = {id: data[id]['name'] for id in data}
+
+    dict = team2position(stagione, rows)
     for row in rows:
         # generate svg
         id = int(row['Nome utente'])
-        fantasquadra = id2fantasquadra[id]['name']
+        fantasquadra = fantasquadre_dict[id]
         x = dict[fantasquadra].keys()
         y = dict[fantasquadra].values()
         svg = generate_histogram_svg(x, y)
@@ -119,7 +162,7 @@ def export_all_files(stagione, rows):
 
 
 def export_summary_file(stagione, rows):
-    svg = generate_histogram_svg_summary(rows)
+    svg = generate_histogram_svg_summary(stagione, rows)
     clean_svg = svg.split("\n", 3)
     generate_summary_file(stagione, clean_svg[3])
 
@@ -135,10 +178,10 @@ def generate_histogram_svg(x, y):
     return f.getvalue().decode()
 
 
-def generate_histogram_svg_summary(rows):
+def generate_histogram_svg_summary(stagione, rows):
     f = io.BytesIO()
 
-    data = team2position(rows)
+    data = team2position(stagione, rows)
 
     fig, (ax, lax) = plt.subplots(ncols=2, gridspec_kw={"width_ratios":[4, 1]})
 

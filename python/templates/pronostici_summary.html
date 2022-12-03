@@ -1,0 +1,11 @@
+---
+layout: page
+title: {{ title }}
+permalink: {{ permalink }}
+---
+
+{% for fantasquadra in fantasquadre %}
+    - <a href="{{ fantasquadra.link }}">{{ fantasquadra.name }}</a>
+{% endfor %}
+
+{{ svg }}
