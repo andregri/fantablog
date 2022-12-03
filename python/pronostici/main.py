@@ -54,7 +54,7 @@ def generate_summary_file(stagione, svg):
         fantasquadre_list = [dict(
             id=id,
             name=data[id]['name'],
-            link="{{ site.baseurl }}/2022_2023/pronostici/"+str(id)+".html"
+            link="{{ site.baseurl }}"+f"/stagione/pronostici/{id}.html"
             ) for id in data]
 
     htmlfile_path = OUTPUT_PATH / stagione / 'pronostici' / 'pronostici.html'
