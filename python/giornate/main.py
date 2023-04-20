@@ -3,7 +3,11 @@ import yaml
 import csv
 import argparse
 from pathlib import Path
+import jinja2
 
+
+HERE_PATH = Path(__file__).parent.parent
+OUTPUT_PATH = Path(__file__).parent.parent.parent / 'stagioni'
 
 # Read map from ID to Fantasquadra name
 id2fantasquadra = {}
@@ -15,8 +19,8 @@ with open('../../_data/fantasquadre.yml', 'r') as f:
 class Giornata():
     def __init__(self, filename, filename_classifica):
         self.filename = filename
-        self.partite = {}   # keys: 1, 2, 3, ... values: {codice_fg: , risultato: }
-                            # keys: 1, 2, 3, ... vaules: {id_partita: , modulo: , punti: , mod_difesa: , calciatori: []}
+        self.partite = {}   # keys: 1, 2, 3, ... - values: {codice_fg: , risultato: , home: , away: }
+                            # keys: home, away   - vaules: {id_squadra: , modulo_iniziale: , modulo_finale: , punti: , mod_difesa: , mod_fairplay: , calciatori: []}
         self.classifica = []
         
         self.read_json(self.filename)
@@ -71,6 +75,8 @@ class Giornata():
         with open(filename, newline='') as csvFile:
             reader = csv.DictReader(csvFile, delimiter=';')
             for row in reader:
+                row['Pt'] = row['Pt.']
+                row['PtTot'] = row['Pt. Totali']
                 self.classifica.append(row)
 
     
@@ -112,51 +118,35 @@ class Giornata():
 
 
     def genera_riepilogo_giornata(self, stagione, giornata, is_coppa=False):
-        permalink = f'{stagione}/giornate/{giornata}'
-        if is_coppa:
-            permalink = f'{stagione}/coppa/giornate/{giornata}'
+        teamfile_path = HERE_PATH / 'data' / stagione / 'fantasquadre.yml'
+        fantasquadre_dict = {}
+        with open(teamfile_path.resolve(), 'r') as f:
+            data=yaml.safe_load(f)
+            fantasquadre_dict = {id: dict(
+                name=data[id]['name'],
+                link="{{ site.baseurl }}" + f"/{stagione}/pronostici/{id}.html"
+                ) for id in data}
 
-        with open(f'../../stagioni/{permalink}/{giornata}.html', 'w') as f:
-            f.write('---\n')
-            f.write(f'layout: page\n')
-            f.write(f'title: Giornata {giornata}\n')
-            f.write(f'permalink: /{permalink}\n')
-            f.write('---\n\n')
+        out_html_filepath = OUTPUT_PATH / stagione / 'giornate' / str(giornata) / f'{str(giornata)}.html'
+        with open(out_html_filepath.resolve(), 'w') as out_f:
+            templates_path = HERE_PATH / 'templates'
+            templateLoader = jinja2.FileSystemLoader(templates_path.resolve())
+            templateEnv = jinja2.Environment(loader=templateLoader)
+            template = templateEnv.get_template('giornata.html')
 
-            self.genera_navigazione(file=f, is_riepilogo=True, giornata=giornata, is_coppa=is_coppa)
-
-            coppa = ''
-            if is_coppa:
-                coppa = 'coppa'
-            
-            f.write('<h1>Risultati</h1>\n')
-            f.write('<table>\n')
-            f.write('  {% for item in site.data.stagione_' + stagione + '.giornata_' + coppa + giornata + ' %}\n')
-            f.write('    <tr>\n')
-            f.write('      <td>{{ item.home }}</td>\n')
-            f.write('      <td>{{ item.score }}</td>\n')
-            f.write('      <td>{{ item.away }}</td>\n')
-            f.write('    <tr>\n')
-            f.write('  {% endfor %}\n')
-            f.write('</table>\n')
-
-            if not is_coppa:
-                self.genera_classifica(f, self.classifica)
-            else:
-                self.genera_classifica(f, self.classifica[0:5], 'A')
-                self.genera_classifica(f, self.classifica[6:],  'B')
-
-        with open(f'../../_data/stagione_{stagione}/giornata_{coppa}{giornata}.csv', 'w') as f:
-            f.write('id,home,score,away\n')
-            for i, partita in self.partite.items():
-                id_squadra_casa = partita['home']['id_squadra']
-                nome_squadra_casa = id2fantasquadra[id_squadra_casa]
-                id_squadra_trasferta = partita['away']['id_squadra']
-                nome_squadra_trasferta = id2fantasquadra[id_squadra_trasferta]
-                risultato = partita['risultato']
-
-                nome_squadra_casa, nome_squadra_trasferta, risultato = self.get_title(i)
-                f.write(f'{i},{nome_squadra_casa},{risultato},{nome_squadra_trasferta}\n')
+            title = f"Giornata {giornata}"
+            permalink = f'/{stagione}/giornate/{giornata}.html'
+            outputText = template.render(
+                title=title,
+                permalink=permalink,
+                scores=[dict(
+                    home=fantasquadre_dict[partita['home']['id_squadra']]['name'],
+                    away=fantasquadre_dict[partita['home']['id_squadra']]['name'],
+                    score=partita['risultato'],
+                    link="{{ site.baseurl }}" + f"/{stagione}/giornate/{giornata}/partite/{id}.html"
+                ) for id, partita in self.partite.items()],
+                classifica=self.classifica)
+            out_f.write(outputText)
 
     
     def genera_classifica(self, f, rows, nome=''):
