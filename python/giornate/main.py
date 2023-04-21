@@ -72,7 +72,10 @@ class Giornata():
         Read csv file that contains all informations about
         the chart of a specific matchday
         """
-        with open(filename, newline='') as csvFile:
+
+        # Use utf-8-sig encoding to read Pod column, otherwise it reads '\ufeffPos' instead of 'Pos'.
+        # (see https://stackoverflow.com/questions/10971033/backporting-python-3-openencoding-utf-8-to-python-2)
+        with open(filename, newline='', encoding='utf-8-sig') as csvFile:
             reader = csv.DictReader(csvFile, delimiter=';')
             for row in reader:
                 row['Pt'] = row['Pt.']
