@@ -277,13 +277,13 @@ class Giornata():
                 # RUOLO
                 ruolo = calciatore["ruolo"].upper()
                 if ruolo == 'P':
-                    ruolo_img = f'<img src="/assets/img/ruolo_p.png" alt="P">'
+                    ruolo_img = '<img src="{{ site.baseurl }}/assets/img/ruolo_p.png" alt="P">'
                 elif ruolo == 'D':
-                    ruolo_img = f'<img src="/assets/img/ruolo_d.png" alt="D">'
+                    ruolo_img = '<img src="{{ site.baseurl }}/assets/img/ruolo_d.png" alt="D">'
                 elif ruolo == 'C':
-                    ruolo_img = f'<img src="/assets/img/ruolo_c.png" alt="C">'
+                    ruolo_img = '<img src="{{ site.baseurl }}/assets/img/ruolo_c.png" alt="C">'
                 elif ruolo == 'A':
-                    ruolo_img = f'<img src="/assets/img/ruolo_a.png" alt="A">'
+                    ruolo_img = '<img src="{{ site.baseurl }}/assets/img/ruolo_a.png" alt="A">'
                 
                 nome = calciatore["nome"]
                 team = calciatore["team"].upper()
@@ -306,46 +306,46 @@ class Giornata():
                 bonus = ''
 
                 for _ in range(calciatore['ammonizioni']):
-                    bonus += '<img src="/assets/img/ammonito.png" alt="Giallo">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/ammonito.png" alt="Giallo">'
 
                 for _ in range(calciatore['espulsioni']):
-                    bonus += '<img src="/assets/img/espulso.png" alt="Rosso">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/espulso.png" alt="Rosso">'
 
                 for _ in range(calciatore['gol_fatti']):
-                    bonus += '<img src="/assets/img/golFatto.png" alt="Gol">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/golFatto.png" alt="Gol">'
 
                 for _ in range(calciatore['gol_subiti']):
-                    bonus += '<img src="/assets/img/golSubito.png" alt="Gol Subito">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/golSubito.png" alt="Gol Subito">'
 
                 for _ in range(calciatore['rigori_parati']):
-                    bonus += '<img src="/assets/img/rigoreParato.png" alt="Rigore Parato">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/rigoreParato.png" alt="Rigore Parato">'
 
                 for _ in range(calciatore['rigori_sbagliati']):
-                    bonus += '<img src="/assets/img/rigoreSbagliato.png" alt="Rigore Sbagliato">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/rigoreSbagliato.png" alt="Rigore Sbagliato">'
                 
                 for _ in range(calciatore['rigori_segnati']):
-                    bonus += '<img src="/assets/img/rigoreSegnato.png" alt="Rigore Segnato">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/rigoreSegnato.png" alt="Rigore Segnato">'
 
                 for _ in range(calciatore['porta_inviolata']):
-                    bonus += '<img src="/assets/img/portiereImbattuto.png" alt="Portiere imbattuto">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/portiereImbattuto.png" alt="Portiere imbattuto">'
 
                 for _ in range(calciatore['autogol']):
-                    bonus += '<img src="/assets/img/autogol.png" alt="Autogol">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/autogol.png" alt="Autogol">'
 
                 for _ in range(calciatore['assist_bronzo']):
-                    bonus += '<img src="/assets/img/assistSoft.png" alt="Assist bronzo">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/assistSoft.png" alt="Assist bronzo">'
 
                 for _ in range(calciatore['assist_argento']):
-                    bonus += '<img src="/assets/img/assist.png" alt="Assist argento">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/assist.png" alt="Assist argento">'
 
                 for _ in range(calciatore['assist_oro']):
-                    bonus += '<img src="/assets/img/assistGold.png" alt="Assist oro">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/assistGold.png" alt="Assist oro">'
 
                 if calciatore['sostituzione'] == 'U':
-                    bonus += '<img src="/assets/img/out.webp" alt="Uscito">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/out.webp" alt="Uscito">'
 
                 if calciatore['sostituzione'] == 'E':
-                    bonus += '<img src="/assets/img/in.webp" alt="Entrato">'
+                    bonus += '<img src="{{ site.baseurl }}/assets/img/in.webp" alt="Entrato">'
 
                 # Add style to footballer name
                 styled_nome = nome
