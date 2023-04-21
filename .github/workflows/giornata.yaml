@@ -1,0 +1,30 @@
+name: Genera giornata
+
+on:
+  push:
+    paths:
+      - 'python/data/**/**.csv'
+      - 'python/data/**/**.json'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          cd python
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      
+      - name: Genera giornata
+        run: |
+          cd python/giornata
+          python main.py 2022_2023 5
+
+      # Create commit and push changes
+      - uses: EndBug/add-and-commit@v9
