@@ -23,7 +23,7 @@ jobs:
       
       - name: Genera giornata
         run: |
-          cd python/giornata
+          cd python/giornate
           python main.py 2022_2023 5
 
       # Create commit and push changes
