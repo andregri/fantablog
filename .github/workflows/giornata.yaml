@@ -5,6 +5,7 @@ on:
     paths:
       - 'python/data/**/**.csv'
       - 'python/data/**/**.json'
+  workflow_dispatch:
 
 jobs:
   build:

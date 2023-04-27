@@ -275,6 +275,8 @@ class Giornata():
             f.write(f'  <tr>\n')
             for field in ['home', 'away']:
                 calciatori = self.partite[id_partita][field]['calciatori']
+                if i >= len(calciatori):
+                    continue
                 calciatore = calciatori[i]
 
                 # RUOLO
