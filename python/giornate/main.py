@@ -138,7 +138,9 @@ class Giornata():
             template = templateEnv.get_template('giornata.html')
 
             title = f"Giornata {giornata}"
-            permalink = f'/{stagione}/giornate/{giornata}.html'
+            # Using the permalink /about/ with the / at the end means that Jekyll
+            # will create the about folder and then inside create the index.html page.
+            permalink = f'/{stagione}/giornate/{giornata}/'
             outputText = template.render(
                 title=title,
                 permalink=permalink,
