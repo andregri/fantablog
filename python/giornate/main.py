@@ -441,4 +441,4 @@ if __name__ == "__main__":
             giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=day_number)
         
         for i in range(1,6):
-            giornata.genera_partita(stagione=args.stagione, giornata=day_number, id_partita=i)
+            giornata.genera_partita(stagione=args.stagione, giornata=day_number, id_partita=i, is_coppa=args.coppa)
