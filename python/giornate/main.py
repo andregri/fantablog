@@ -41,11 +41,15 @@ class Giornata():
             data = json.load(f)
             partite = data['data']['formazioni']
 
-            for id_partita, partita in enumerate(partite):
-                # i want id_partita to start from 1
-                id_partita += 1
+            id_partita = 1
+            
+            for partita in partite:
+                
+                if partita['sq'][0]['id'] == -1 or partita['sq'][1]['id'] == -1:
+                    continue
 
                 self.partite[id_partita] = {}
+
                 self.partite[id_partita]['codice_fg'] = partita['id']
                 self.partite[id_partita]['risultato'] = partita['r']
 
@@ -54,9 +58,10 @@ class Giornata():
                     tmp_squadra = {}
                     tmp_squadra['id_squadra'] = squadra['id']
 
-                    moduli = squadra['m'].split(';')
-                    tmp_squadra['modulo_iniziale'] = moduli[0]
-                    tmp_squadra['modulo_finale']   = moduli[1]
+                    if squadra['m']:
+                        moduli = squadra['m'].split(';')
+                        tmp_squadra['modulo_iniziale'] = moduli[0]
+                        tmp_squadra['modulo_finale']   = moduli[1]
                     
                     tmp_squadra['punti'] = squadra['t']
                     tmp_squadra['mod_difesa'] = squadra['ap'][2]
@@ -65,11 +70,14 @@ class Giornata():
                     tmp_squadra['calciatori'] = []
 
                     calciatori = squadra['pl']
-                    for calciatore in calciatori:
-                        c = self.parse_calciatore(calciatore)
-                        tmp_squadra['calciatori'].append(c)
+                    if calciatori:
+                        for calciatore in calciatori:
+                            c = self.parse_calciatore(calciatore)
+                            tmp_squadra['calciatori'].append(c)
 
                     self.partite[id_partita][field] = tmp_squadra
+
+                id_partita += 1
 
     
     def read_classifica_csv(self, filename, is_coppa=False):
@@ -440,5 +448,5 @@ if __name__ == "__main__":
         else:
             giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=day_number)
         
-        for i in range(1,6):
-            giornata.genera_partita(stagione=args.stagione, giornata=day_number, id_partita=i, is_coppa=args.coppa)
+        for i in range(len(giornata.partite)):
+            giornata.genera_partita(stagione=args.stagione, giornata=day_number, id_partita=i+1, is_coppa=args.coppa)
