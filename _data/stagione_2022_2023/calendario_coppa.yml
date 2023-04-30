@@ -1,2 +1,20 @@
 - giornata: 1
   fase: gironi
+- giornata: 2
+  fase: gironi
+- giornata: 3
+  fase: gironi
+- giornata: 4
+  fase: gironi
+- giornata: 5
+  fase: gironi
+- giornata: 6
+  fase: quarti (andata)
+- giornata: 7
+  fase: quarti (ritorno)
+- giornata: 8
+  fase: semifinali (andata)
+- giornata: 9
+  fase: semifinali (ritorno)
+- giornata: 10
+  fase: finale
