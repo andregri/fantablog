@@ -438,10 +438,9 @@ if __name__ == "__main__":
     else:
         data_prefix_path = f'../data/{args.stagione}/'
 
-    standing_files = sorted(glob.glob(f'{data_prefix_path}/classifica_*.json'))
     day_files = sorted(glob.glob(f'{data_prefix_path}/giornata*.json'))
     
-    for standing_file, day_file in zip(standing_files, day_files):
+    for day_file in day_files:
         # Extract day number from stading file name
         day_number = int(os.path.basename(day_file).replace('giornata', '').replace('.json', ''))
 
@@ -454,10 +453,7 @@ if __name__ == "__main__":
         giornata = Giornata(day_file)
 
         if args.coppa:
-            if day_number > 5:
-                giornata.genera_riepilogo_giornata_coppa_eliminazione(stagione=args.stagione, giornata=day_number)
-            else:
-                giornata.genera_riepilogo_giornata_coppa_gironi(stagione=args.stagione, giornata=day_number)
+            giornata.genera_riepilogo_giornata_coppa_gironi(stagione=args.stagione, giornata=day_number)
         else:
             giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=day_number)
         
