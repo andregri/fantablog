@@ -6,6 +6,7 @@ import glob
 from pathlib import Path
 import jinja2
 import os
+import table
 
 
 HERE_PATH = Path(__file__).parent.parent
@@ -26,7 +27,9 @@ class Giornata():
         self.classifica = []
         
         self.read_json(self.filename)
-        self.read_classifica_csv(filename_classifica)
+
+        if filename_classifica != "":
+            self.read_classifica_csv(filename_classifica)
 
 
     def read_json(self, filename):
@@ -148,7 +151,7 @@ class Giornata():
                 permalink=permalink,
                 scores=[dict(
                     home=fantasquadre_dict[partita['home']['id_squadra']]['name'],
-                    away=fantasquadre_dict[partita['home']['id_squadra']]['name'],
+                    away=fantasquadre_dict[partita['away']['id_squadra']]['name'],
                     score=partita['risultato'],
                     link="{{ site.baseurl }}" + f"/{stagione}/giornate/{giornata}/partite/{id}.html"
                 ) for id, partita in self.partite.items()],
@@ -156,21 +159,39 @@ class Giornata():
             out_f.write(outputText)
 
     
-    def genera_classifica(self, f, rows, nome=''):
-        f.write(f'<h1>Classifica {nome}</h1>\n')
-        f.write('  <table>\n')
-        f.write('    <tr>\n')
-        # Header row
-        for header in rows[0].keys():
-            f.write(f'      <th>{header}</th>')
-        f.write('    </tr>\n')
-        # Value rows
-        for row in rows:
-            f.write('    <tr>\n')
-            for value in row.values():
-                f.write(f'      <td>{value}</td>\n')
-            f.write('    </tr>\n')
-        f.write('  </table>\n')
+    def genera_riepilogo_giornata_coppa_gironi(self, stagione, giornata):
+        teamfile_path = HERE_PATH / 'data' / stagione / 'fantasquadre.yml'
+        fantasquadre_dict = {}
+        with open(teamfile_path.resolve(), 'r') as f:
+            data=yaml.safe_load(f)
+            fantasquadre_dict = {id: dict(name=data[id]['name']) for id in data}
+
+        table_json_path = HERE_PATH / 'data' / stagione / 'coppa' / f'classifica_{giornata}.json'
+        t = table.Table(5, table_json_path)
+        group_tables = [{'group': group, 'table': t.by_group(group)} for group in t.groups()]
+    
+        out_html_filepath = OUTPUT_PATH / stagione / 'coppa' / 'giornate' / str(giornata) / f'{str(giornata)}.html'
+        with open(out_html_filepath.resolve(), 'w') as out_f:
+            templates_path = HERE_PATH / 'templates'
+            templateLoader = jinja2.FileSystemLoader(templates_path.resolve())
+            templateEnv = jinja2.Environment(loader=templateLoader)
+            template = templateEnv.get_template('giornata_gironi.html')
+
+            title = f"Giornata {giornata}"
+            # Using the permalink /about/ with the / at the end means that Jekyll
+            # will create the about folder and then inside create the index.html page.
+            permalink = f'/{stagione}/coppa/giornate/{giornata}/'
+            outputText = template.render(
+                title=title,
+                permalink=permalink,
+                scores=[dict(
+                    home=fantasquadre_dict[partita['home']['id_squadra']]['name'],
+                    away=fantasquadre_dict[partita['away']['id_squadra']]['name'],
+                    score=partita['risultato'],
+                    link="{{ site.baseurl }}" + f"/{stagione}/coppa/giornate/{giornata}/partite/{id}.html"
+                ) for id, partita in self.partite.items()],
+                gironi=group_tables)
+            out_f.write(outputText)
 
 
     def genera_partita(self, stagione, giornata, id_partita, is_coppa=False):
@@ -383,24 +404,41 @@ if __name__ == "__main__":
 
         es. Per generare i file della stagione 2022_2023
             python main.py 2022_2023
+
+        es. Per generare i file della coppa
+            python main.py 2022_2023 --coppa gironi
     ''')
     parser.add_argument('stagione', type=str, help='stagione e.g. 2022_2023')
+    parser.add_argument('--coppa', type=str, help='fase della coppa, e.g. gironi')
     args = parser.parse_args()
     
-    data_prefix_path = f'../data/{args.stagione}/'
+    if args.coppa:
+        data_prefix_path = f'../data/{args.stagione}/coppa/'
+    else:
+        data_prefix_path = f'../data/{args.stagione}/'
 
-    standing_files = sorted(glob.glob(f'{data_prefix_path}/Classifica_*.csv'))
+    if args.coppa:
+        standing_files = sorted(glob.glob(f'{data_prefix_path}/classifica_*.json'))
+    else:
+        standing_files = sorted(glob.glob(f'{data_prefix_path}/Classifica_*.csv'))
     day_files = sorted(glob.glob(f'{data_prefix_path}/giornata*.json'))
     
     for standing_file, day_file in zip(standing_files, day_files):
         # Extract day number from stading file name
-        day_number = int(os.path.basename(standing_file).replace('Classifica_', '').replace('.csv', ''))
+        day_number = int(os.path.basename(day_file).replace('giornata', '').replace('.json', ''))
 
         # Crea la struttura di cartelle
-        Path(f"../../stagioni/{args.stagione}/giornate/{day_number}/partite").mkdir(parents=True, exist_ok=True)
+        if args.coppa:
+            Path(f"../../stagioni/{args.stagione}/coppa/giornate/{day_number}/partite").mkdir(parents=True, exist_ok=True)
+        else:
+            Path(f"../../stagioni/{args.stagione}/giornate/{day_number}/partite").mkdir(parents=True, exist_ok=True)
 
-        giornata = Giornata(day_file, standing_file)
+        giornata = Giornata(day_file, "")
 
-        giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=day_number)
+        if args.coppa:
+            giornata.genera_riepilogo_giornata_coppa_gironi(stagione=args.stagione, giornata=day_number)
+        else:
+            giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=day_number)
+        
         for i in range(1,6):
             giornata.genera_partita(stagione=args.stagione, giornata=day_number, id_partita=i)
