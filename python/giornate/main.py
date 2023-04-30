@@ -453,7 +453,10 @@ if __name__ == "__main__":
         giornata = Giornata(day_file)
 
         if args.coppa:
-            giornata.genera_riepilogo_giornata_coppa_gironi(stagione=args.stagione, giornata=day_number)
+            if day_number > 5:
+                giornata.genera_riepilogo_giornata_coppa_eliminazione(stagione=args.stagione, giornata=day_number)
+            else:
+                giornata.genera_riepilogo_giornata_coppa_gironi(stagione=args.stagione, giornata=day_number)
         else:
             giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=day_number)
         
