@@ -185,6 +185,36 @@ class Giornata():
             out_f.write(outputText)
 
 
+    def genera_riepilogo_giornata_coppa_eliminazione(self, stagione, giornata):
+        teamfile_path = HERE_PATH / 'data' / stagione / 'fantasquadre.yml'
+        fantasquadre_dict = {}
+        with open(teamfile_path.resolve(), 'r') as f:
+            data=yaml.safe_load(f)
+            fantasquadre_dict = {id: dict(name=data[id]['name']) for id in data}
+    
+        out_html_filepath = OUTPUT_PATH / stagione / 'coppa' / 'giornate' / str(giornata) / f'{str(giornata)}.html'
+        with open(out_html_filepath.resolve(), 'w') as out_f:
+            templates_path = HERE_PATH / 'templates'
+            templateLoader = jinja2.FileSystemLoader(templates_path.resolve())
+            templateEnv = jinja2.Environment(loader=templateLoader)
+            template = templateEnv.get_template('giornata_eliminazione.html')
+
+            title = f"Giornata {giornata}"
+            # Using the permalink /about/ with the / at the end means that Jekyll
+            # will create the about folder and then inside create the index.html page.
+            permalink = f'/{stagione}/coppa/giornate/{giornata}/'
+            outputText = template.render(
+                title=title,
+                permalink=permalink,
+                scores=[dict(
+                    home=fantasquadre_dict[partita['home']['id_squadra']]['name'],
+                    away=fantasquadre_dict[partita['away']['id_squadra']]['name'],
+                    score=partita['risultato'],
+                    link="{{ site.baseurl }}" + f"/{stagione}/coppa/giornate/{giornata}/partite/{id}.html"
+                ) for id, partita in self.partite.items()])
+            out_f.write(outputText)
+
+
     def genera_partita(self, stagione, giornata, id_partita, is_coppa=False):
         nome_squadra_casa, nome_squadra_trasferta, risultato = self.get_title(id_partita)
         title = f'{nome_squadra_casa} ({risultato}) {nome_squadra_trasferta}'
@@ -424,7 +454,10 @@ if __name__ == "__main__":
         giornata = Giornata(day_file)
 
         if args.coppa:
-            giornata.genera_riepilogo_giornata_coppa_gironi(stagione=args.stagione, giornata=day_number)
+            if day_number > 5:
+                giornata.genera_riepilogo_giornata_coppa_eliminazione(stagione=args.stagione, giornata=day_number)
+            else:
+                giornata.genera_riepilogo_giornata_coppa_gironi(stagione=args.stagione, giornata=day_number)
         else:
             giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=day_number)
         

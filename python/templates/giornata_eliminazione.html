@@ -1,0 +1,16 @@
+---
+layout: page
+title: {{ title }}
+permalink: {{ permalink }}
+---
+
+<h1>Risultati</h1>
+<table>
+  {% for item in scores %}
+    <tr>
+      <td>{{ item.home }}</td>
+      <td><a href="{{ item.link }}">{{ item.score }}</a></td>
+      <td>{{ item.away }}</td>
+    <tr>
+  {% endfor %}
+</table>
