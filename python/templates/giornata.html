@@ -7,44 +7,44 @@ permalink: {{ permalink }}
 <h1>Risultati</h1>
 <table>
   {% for item in scores %}
-    <tr>
-      <td>{{ item.home }}</td>
-      <td><a href="{{ item.link }}">{{ item.score }}</a></td>
-      <td>{{ item.away }}</td>
-    <tr>
-  {% endfor %}
+  <tr>
+    <td>{{ item.home }}</td>
+    <td><a href="{{ item.link }}">{{ item.score }}</a></td>
+    <td>{{ item.away }}</td>
+  <tr>
+    {% endfor %}
 </table>
 
 <h1>Classifica</h1>
-  <table>
-    <tr>
-      <th>Pos</th>
-      <th>Squadra</th>
-      <th></th>
-      <th>G</th>
-      <th>V</th>
-      <th>N</th>
-      <th>P</th>
-      <th>Gf</th>
-      <th>Gs</th>
-      <th>Dr</th>
-      <th>Pt.</th>
-      <th>Pt. Totali</th>
-    </tr>
-    {% for item in classifica %}
-    <tr>
-      <td>{{ item.Pos }}</td>
-      <td>{{ item.Squadra }}</td>
-      <td></td>
-      <td>{{ item.G }}</td>
-      <td>{{ item.V }}</td>
-      <td>{{ item.N }}</td>
-      <td>{{ item.P }}</td>
-      <td>{{ item.Gf }}</td>
-      <td>{{ item.Gs }}</td>
-      <td>{{ item.Dr }}</td>
-      <td>{{ item.Pt }}</td>
-      <td>{{ item.PtTot }}</td>
-    </tr>
-    {% endfor %}
-  </table>
+<table>
+  <tr>
+    <th>Pos</th>
+    <th>Squadra</th>
+    <th></th>
+    <th>G</th>
+    <th>V</th>
+    <th>N</th>
+    <th>P</th>
+    <th>Gf</th>
+    <th>Gs</th>
+    <th>Dr</th>
+    <th>Pt.</th>
+    <th>Pt. Totali</th>
+  </tr>
+  {% for item in classifica %}
+  <tr>
+    <td>{{ item.position }}</td>
+    <td>{{ item.team }}</td>
+    <td></td>
+    <td>{{ item.played }}</td>
+    <td>{{ item.won }}</td>
+    <td>{{ item.draw }}</td>
+    <td>{{ item.lost }}</td>
+    <td>{{ item.goals_for }}</td>
+    <td>{{ item.goals_against }}</td>
+    <td>{{ item.goal_difference }}</td>
+    <td>{{ item.tot_points }}</td>
+    <td>{{ item.tot_special_points }}</td>
+  </tr>
+  {% endfor %}
+</table>

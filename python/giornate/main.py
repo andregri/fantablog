@@ -20,16 +20,12 @@ with open('../../_data/fantasquadre.yml', 'r') as f:
 
 
 class Giornata():
-    def __init__(self, filename, filename_classifica):
+    def __init__(self, filename):
         self.filename = filename
         self.partite = {}   # keys: 1, 2, 3, ... - values: {codice_fg: , risultato: , home: , away: }
                             # keys: home, away   - vaules: {id_squadra: , modulo_iniziale: , modulo_finale: , punti: , mod_difesa: , mod_fairplay: , calciatori: []}
-        self.classifica = []
-        
-        self.read_json(self.filename)
 
-        if filename_classifica != "":
-            self.read_classifica_csv(filename_classifica)
+        self.read_json(self.filename)
 
 
     def read_json(self, filename):
@@ -80,22 +76,6 @@ class Giornata():
                 id_partita += 1
 
     
-    def read_classifica_csv(self, filename, is_coppa=False):
-        """
-        Read csv file that contains all informations about
-        the chart of a specific matchday
-        """
-
-        # Use utf-8-sig encoding to read Pod column, otherwise it reads '\ufeffPos' instead of 'Pos'.
-        # (see https://stackoverflow.com/questions/10971033/backporting-python-3-openencoding-utf-8-to-python-2)
-        with open(filename, newline='', encoding='utf-8-sig') as csvFile:
-            reader = csv.DictReader(csvFile, delimiter=';')
-            for row in reader:
-                row['Pt'] = row['Pt.']
-                row['PtTot'] = row['Pt. Totali']
-                self.classifica.append(row)
-
-    
     def parse_calciatore(self, data):
         # rename keys
         calciatore = {}
@@ -142,6 +122,9 @@ class Giornata():
                 name=data[id]['name'],
                 link="{{ site.baseurl }}" + f"/{stagione}/pronostici/{id}.html"
                 ) for id in data}
+            
+        table_json_path = HERE_PATH / 'data' / stagione / f'classifica_{giornata}.json'
+        t = table.Table(10, table_json_path)
 
         out_html_filepath = OUTPUT_PATH / stagione / 'giornate' / str(giornata) / f'{str(giornata)}.html'
         with open(out_html_filepath.resolve(), 'w') as out_f:
@@ -163,7 +146,7 @@ class Giornata():
                     score=partita['risultato'],
                     link="{{ site.baseurl }}" + f"/{stagione}/giornate/{giornata}/partite/{id}.html"
                 ) for id, partita in self.partite.items()],
-                classifica=self.classifica)
+                classifica=t.rows)
             out_f.write(outputText)
 
     
@@ -425,10 +408,7 @@ if __name__ == "__main__":
     else:
         data_prefix_path = f'../data/{args.stagione}/'
 
-    if args.coppa:
-        standing_files = sorted(glob.glob(f'{data_prefix_path}/classifica_*.json'))
-    else:
-        standing_files = sorted(glob.glob(f'{data_prefix_path}/Classifica_*.csv'))
+    standing_files = sorted(glob.glob(f'{data_prefix_path}/classifica_*.json'))
     day_files = sorted(glob.glob(f'{data_prefix_path}/giornata*.json'))
     
     for standing_file, day_file in zip(standing_files, day_files):
@@ -441,7 +421,7 @@ if __name__ == "__main__":
         else:
             Path(f"../../stagioni/{args.stagione}/giornate/{day_number}/partite").mkdir(parents=True, exist_ok=True)
 
-        giornata = Giornata(day_file, "")
+        giornata = Giornata(day_file)
 
         if args.coppa:
             giornata.genera_riepilogo_giornata_coppa_gironi(stagione=args.stagione, giornata=day_number)
