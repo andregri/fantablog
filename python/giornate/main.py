@@ -2,8 +2,10 @@ import json
 import yaml
 import csv
 import argparse
+import glob
 from pathlib import Path
 import jinja2
+import os
 
 
 HERE_PATH = Path(__file__).parent.parent
@@ -377,55 +379,28 @@ class Giornata():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='''
-        Genera i file per una giornata
+        Genera i file per una stagione
 
-        es. Per generare i file della prima giornata di campionato
-            python main.py 2022_2023 1
-        
-        es. Per generare i file della prima giornata di coppa
-            python main.py 2022_2023 1 --coppa=gironi
+        es. Per generare i file della stagione 2022_2023
+            python main.py 2022_2023
     ''')
     parser.add_argument('stagione', type=str, help='stagione e.g. 2022_2023')
-    parser.add_argument('giornata', type=str, help='giornata e.g. 1')
-    parser.add_argument('--coppa', type=str, help='fase della coppa, e.g. gironi')
     args = parser.parse_args()
-
-    # Crea la struttura di cartelle
-    if args.coppa:
-        Path(f"../../stagioni/{args.stagione}/coppa/giornate/{args.giornata}/partite").mkdir(parents=True, exist_ok=True)
-    else:
-        Path(f"../../stagioni/{args.stagione}/giornate/{args.giornata}/partite").mkdir(parents=True, exist_ok=True)
     
     data_prefix_path = f'../data/{args.stagione}/'
-    if args.coppa:
-        data_prefix_path = f'../data/{args.stagione}/coppa/'
 
-    giornata = Giornata(f'{data_prefix_path}/giornata{args.giornata}.json', f'{data_prefix_path}/Classifica_{args.giornata}.csv')
-    giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=args.giornata, is_coppa=args.coppa)
-    for i in range(1,6):
-        giornata.genera_partita(stagione=args.stagione, giornata=args.giornata, id_partita=i, is_coppa=args.coppa)
+    standing_files = sorted(glob.glob(f'{data_prefix_path}/Classifica_*.csv'))
+    day_files = sorted(glob.glob(f'{data_prefix_path}/giornata*.json'))
+    
+    for standing_file, day_file in zip(standing_files, day_files):
+        # Extract day number from stading file name
+        day_number = int(os.path.basename(standing_file).replace('Classifica_', '').replace('.csv', ''))
 
-    # Aggiorna _data/stagione_xxxx_yyyy/calendario.yml
-    calendario_yaml_path = f'../../_data/stagione_{args.stagione}/calendario.yml'
-    if args.coppa:
-        calendario_yaml_path = f'../../_data/stagione_{args.stagione}/calendario_coppa.yml'
+        # Crea la struttura di cartelle
+        Path(f"../../stagioni/{args.stagione}/giornate/{day_number}/partite").mkdir(parents=True, exist_ok=True)
 
-    calendario = None
-    with open(calendario_yaml_path, 'r') as f:
-        calendario = yaml.safe_load(f)
+        giornata = Giornata(day_file, standing_file)
 
-        if not calendario:
-            calendario = []
-
-        data = dict(giornata=int(args.giornata))
-        if args.coppa:
-            data = dict(giornata=int(args.giornata), fase=args.coppa)
-
-        # aggiungi giornata al calendario solo se non esiste già
-        if not data in calendario:
-            calendario.insert(int(args.giornata)-1, data)
-
-
-    with open(calendario_yaml_path, 'w') as f:
-        text = yaml.safe_dump(calendario)
-        f.write(text)
+        giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=day_number)
+        for i in range(1,6):
+            giornata.genera_partita(stagione=args.stagione, giornata=day_number, id_partita=i)
