@@ -22,10 +22,15 @@ jobs:
           cd python
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       
-      - name: Genera giornata
+      - name: Genera giornata campionato
         run: |
           cd python/giornate
-          python main.py 2022_2023 5
+          python main.py 2022_2023
+
+      - name: Genera giornata coppa
+        run: |
+          cd python/giornate
+          python main.py 2022_2023 --coppa gironi
 
       # Create commit and push changes
       - uses: EndBug/add-and-commit@v9
