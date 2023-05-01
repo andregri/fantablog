@@ -4,3 +4,12 @@
 
 layout: home
 ---
+
+<h1><a href="2022_2023/">Stagione 2022/2023</a></h1>
+
+<ul>
+    <li><a href="2022_2023/mercati">Mercati</a></li>
+    <li><a href="2022_2023/calendario">Campionato: calendario e risultati</a></li>
+    <li><a href="2022_2023/calendario-coppa">Coppa Box:  calendario e risultati</a></li>
+    <li><a href="2022_2023/pronostici/pronostici.html">Pronostici</a></li>
+</ul>

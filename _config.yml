@@ -28,7 +28,7 @@ twitter_username: jekyllrb
 github_username:  jekyll
 
 header_pages:
-  - stagioni/2022_2023/stagione.md
+  - albo.html
   - about.md
 
 # Build settings
