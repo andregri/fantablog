@@ -123,7 +123,7 @@ class Giornata():
                 link="{{ site.baseurl }}" + f"/{stagione}/pronostici/{id}.html"
                 ) for id in data}
             
-        table_json_path = HERE_PATH / 'data' / stagione / f'classifica_{giornata}.json'
+        table_json_path = HERE_PATH / 'data' / stagione / 'campionato' / f'classifica_{giornata}.json'
         t = table.Table(10, table_json_path)
 
         out_html_filepath = OUTPUT_PATH / stagione / 'giornate' / str(giornata) / f'{str(giornata)}.html'
@@ -436,7 +436,7 @@ if __name__ == "__main__":
     if args.coppa:
         data_prefix_path = f'../data/{args.stagione}/coppa/'
     else:
-        data_prefix_path = f'../data/{args.stagione}/'
+        data_prefix_path = f'../data/{args.stagione}/campionato/'
 
     day_files = sorted(glob.glob(f'{data_prefix_path}/giornata*.json'))
     

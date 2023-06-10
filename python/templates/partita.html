@@ -1,0 +1,91 @@
+---
+layout: page
+title: {{ title }}
+permalink: {{ permalink }}
+---
+
+<a href="..">Riepilogo</a>
+{% for match in matches %}
+  || <a href="{{ match.id }}">
+    {{ match.home }} ({{ match.score }}) {{ match.away }}
+  </a>
+{% endfor %}
+
+<h1>Titolari</h1>
+<table>
+  <tr>
+    <td colspan="4">{{ home.name }} ({{ home.modulo }})</td>
+    <td></td>
+    <td colspan="4">{{ away.name }} ({{ away.modulo }})</td>
+  </tr>
+  <tr>
+    <th>Nome</th>
+    <th></th>
+    <th>Voto</th>
+    <th>FV</th>
+    <th> -- </th>
+    <th>Nome</th>
+    <th></th>
+    <th>Voto</th>
+    <th>FV</th>
+  </tr>
+  {% for footballer in footballers %}
+  <tr>
+    <td>
+        <span style="display: block">
+            {% if role == P %}
+            <img src="/assets/img/ruolo_p.png" alt="P">
+            {% endif %}
+            <b>footballer.home.name</b>
+        </span>
+        <span style="display: block">
+            {% for event in events %}
+            <img src="/assets/img/golSubito.png" alt="Gol Subito">
+            <img src="/assets/img/golSubito.png" alt="Gol Subito">
+            <img src="/assets/img/golSubito.png" alt="Gol Subito">
+            {% endfor %}
+        </span>
+    </td>
+    <td>footballer.home.squadra</td>
+    <td>footballer.home.voto</td>
+    <td>footballer.home.fantavoto</td>
+    <td></td>
+    <td>
+        <span style="display: block">
+            <img src="/assets/img/ruolo_p.png" alt="P">
+            <b>footballer.away.name</b>
+        </span>
+        <span style="display: block">
+            <img src="/assets/img/golSubito.png" alt="Gol Subito">
+            <img src="/assets/img/golSubito.png" alt="Gol Subito">
+        </span>
+    </td>
+    <td>footballer.away.squadra</td>
+    <td>footballer.away.voto</td>
+    <td>footballer.away.fantavoto</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<table>
+    <tr>
+      <td>0</td>
+      <td style="text-align: center" colspan="7">Modificatore difesa</td>
+      <td>-2</td>
+    </tr>
+    <tr>
+      <td>0</td>
+      <td style="text-align: center" colspan="7">Bonus fairplay</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>451</td>
+      <td style="text-align: center" colspan="7">Modulo finale</td>
+      <td>433</td>
+    </tr>
+    <tr>
+      <td>67.5</td>
+      <td style="text-align: center" colspan="7">Punti totali</td>
+      <td>66.5</td>
+    </tr>
+  </table>
