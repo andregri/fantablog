@@ -49,6 +49,7 @@ if __name__ == "__main__":
 
             title = fantasquadre_dict[id]['name']
             permalink = f'/{args.stagione}/mercati/{args.file}/rose/{id}'
-            outputText = template.render(title=title, permalink=permalink, calciatori=rosters_dict[id])
+            site = dict(baseurl="{{site.baseurl}}") # because {{site.baseurl}} should not be substituted by jinja but Jekyll
+            outputText = template.render(title=title, permalink=permalink, calciatori=rosters_dict[id], site=site)
 
             out_f.write(outputText)

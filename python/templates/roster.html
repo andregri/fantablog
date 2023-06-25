@@ -13,7 +13,11 @@ permalink: {{ permalink }}
     </tr>
     {% for calciatore in calciatori %}
     <tr>
-        <td> {{ calciatore.Role }} </td>
+        <td>
+            <span style="display: block">
+                <img src="{{ site.baseurl }}/assets/img/ruolo_{{ calciatore.Role|lower }}.png" alt="{{ calciatore.Role }}">
+            </span>
+        </td>
         <td> {{ calciatore.Name }} </td>
         <td> {{ calciatore.Team }} </td>
         <td> {{ calciatore.Cost }} </td>
