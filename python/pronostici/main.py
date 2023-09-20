@@ -48,7 +48,7 @@ def generate_file(stagione, row, svg, stat):
         out_f.write(outputText)
 
 
-def generate_summary_file(stagione, svg):
+def generate_summary_file(stagione, svg, classifica):
     teamfile_path = HERE_PATH / 'data' / stagione / 'fantasquadre.yml'
     fantasquadre_list = []
     with open(teamfile_path.resolve(), 'r') as f:
@@ -68,7 +68,14 @@ def generate_summary_file(stagione, svg):
 
         title = f"I pronostici della stagione {stagione}"
         permalink = f'/{stagione}/pronostici/pronostici.html'
-        outputText = template.render(title=title, permalink=permalink, stagione=stagione, fantasquadre=fantasquadre_list, svg=svg)
+        outputText = template.render(
+            title=title,
+            permalink=permalink,
+            stagione=stagione,
+            fantasquadre=fantasquadre_list,
+            svg=svg,
+            classifica=classifica,
+        )
 
         out_f.write(outputText)
 
@@ -165,7 +172,8 @@ def export_all_files(stagione, rows):
 def export_summary_file(stagione, rows):
     svg = generate_histogram_svg_summary(stagione, rows)
     clean_svg = svg.split("\n", 3)
-    generate_summary_file(stagione, clean_svg[3])
+    classifica = compute_classifica_totale(team2position(stagione, rows))
+    generate_summary_file(stagione, clean_svg[3], classifica)
 
 
 def generate_histogram_svg(x, y):
@@ -226,6 +234,20 @@ def stats(freqs):
     res['mediana'] = n[int(len(n)/2)]
     
     return res
+
+
+def compute_classifica_totale(freqs):
+    avg = {}
+    mediana = {}
+    for fantasquadra, f in freqs.items():
+        s = stats(f.values())
+        avg[fantasquadra] = s['avg']
+        mediana[fantasquadra] = s['mediana']
+
+    # sort teams based on this custom formula: mediana + avg / 10
+    index = {fs: mediana[fs] + avg[fs] / 10 for fs in freqs}
+    sorted_index = sorted(index.items(), key=lambda x:x[1])
+    return [f[0] for f in sorted_index]
 
 
 if __name__ == "__main__":
