@@ -4,8 +4,21 @@ title: {{ title }}
 permalink: {{ permalink }}
 ---
 
+<div>
 {% for fantasquadra in fantasquadre %}
-    - <a href="{{ fantasquadra.link }}">{{ fantasquadra.name }}</a>
+    <a href="{{ fantasquadra.link }}">{{ fantasquadra.name }}</a> -
 {% endfor %}
+</div>
 
+<h1>La classifica statistica secondo i pronostici</h1>
+<ol>
+    {% for fantasquadra in classifica %}
+        <li>{{ fantasquadra }}</li>
+    {% endfor %}
+</ol>
+
+<h1>Grafico dei pronostici</h1>
+<p>Bello ma illeggibile...</p>
+<div>
 {{ svg }}
+</div>

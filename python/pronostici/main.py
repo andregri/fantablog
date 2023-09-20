@@ -5,6 +5,8 @@ import io
 import jinja2
 from pathlib import Path
 
+NUM_SQUADRE = 12
+
 
 HERE_PATH = Path(__file__).parent.parent
 OUTPUT_PATH = Path(__file__).parent.parent.parent / 'stagioni'
@@ -40,13 +42,13 @@ def generate_file(stagione, row, svg, stat):
             title=title, permalink=permalink, stagione=stagione,
             summary_link="{{ site.baseurl }}" + f"/{stagione}/pronostici/pronostici.html",
             who=who, fantasquadre=fantasquadre_dict, svg=svg,
-            classifica=[row[f'{i}° classificato'] for i in range(1,11)],
-            average=stat["avg"], mediana=stat["mediana"])
+            classifica=[row[f'{i}° classificato'] for i in range(1,NUM_SQUADRE+1)],
+            average="{:.1f}".format(stat["avg"]), mediana=stat["mediana"])
 
         out_f.write(outputText)
 
 
-def generate_summary_file(stagione, svg):
+def generate_summary_file(stagione, svg, classifica):
     teamfile_path = HERE_PATH / 'data' / stagione / 'fantasquadre.yml'
     fantasquadre_list = []
     with open(teamfile_path.resolve(), 'r') as f:
@@ -54,7 +56,7 @@ def generate_summary_file(stagione, svg):
         fantasquadre_list = [dict(
             id=id,
             name=data[id]['name'],
-            link="{{ site.baseurl }}"+f"/stagione/pronostici/{id}.html"
+            link="{{ site.baseurl }}"+f"/{stagione}/pronostici/{id}.html"
             ) for id in data]
 
     htmlfile_path = OUTPUT_PATH / stagione / 'pronostici' / 'pronostici.html'
@@ -66,7 +68,14 @@ def generate_summary_file(stagione, svg):
 
         title = f"I pronostici della stagione {stagione}"
         permalink = f'/{stagione}/pronostici/pronostici.html'
-        outputText = template.render(title=title, permalink=permalink, stagione=stagione, fantasquadre=fantasquadre_list, svg=svg)
+        outputText = template.render(
+            title=title,
+            permalink=permalink,
+            stagione=stagione,
+            fantasquadre=fantasquadre_list,
+            svg=svg,
+            classifica=classifica,
+        )
 
         out_f.write(outputText)
 
@@ -83,7 +92,7 @@ def position2team(stagione, rows):
         fantasquadre_dict = {id: data[id]['name'] for id in data}
 
     freq_dict = {}
-    for position in range(1, 11):
+    for position in range(1, NUM_SQUADRE+1):
         freq_dict[position] = {}
         for row in rows:
             id = int(row['Nome utente'])
@@ -91,7 +100,7 @@ def position2team(stagione, rows):
             freq_dict[position][fantasquadra] = 0
 
     for row in rows:
-        for i in range(1,11):
+        for i in range(1,NUM_SQUADRE+1):
             key = f'{i}° classificato'
             fantasquadra = row[key]
             freq_dict[i][fantasquadra] += 1
@@ -111,15 +120,14 @@ def team2position(stagione, rows):
         fantasquadre_dict = {id: data[id]['name'] for id in data}
 
     freq_dict = {}
-    for row in rows:
-        id = int(row['Nome utente'])
+    for id in fantasquadre_dict:
         fantasquadra = fantasquadre_dict[id]
         freq_dict[fantasquadra] = {}
-        for position in range(1, 11):
+        for position in range(1, NUM_SQUADRE+1):
             freq_dict[fantasquadra][position] = 0
 
     for row in rows:
-        for i in range(1,11):
+        for i in range(1,NUM_SQUADRE+1):
             key = f'{i}° classificato'
             fantasquadra = row[key]
             freq_dict[fantasquadra][i] += 1
@@ -164,14 +172,15 @@ def export_all_files(stagione, rows):
 def export_summary_file(stagione, rows):
     svg = generate_histogram_svg_summary(stagione, rows)
     clean_svg = svg.split("\n", 3)
-    generate_summary_file(stagione, clean_svg[3])
+    classifica = compute_classifica_totale(team2position(stagione, rows))
+    generate_summary_file(stagione, clean_svg[3], classifica)
 
 
 def generate_histogram_svg(x, y):
     # Return svg of the histogram x,y
     f = io.BytesIO()
     plt.figure()
-    plt.xticks(range(1,11))
+    plt.xticks(range(1,NUM_SQUADRE+1))
     plt.yticks(range(0,max(y)+1))
     plt.bar(x,y)
     plt.savefig(f, format = "svg")
@@ -185,12 +194,12 @@ def generate_histogram_svg_summary(stagione, rows):
 
     fig, (ax, lax) = plt.subplots(ncols=2, gridspec_kw={"width_ratios":[4, 1]})
 
-    x = list(range(1,11))
+    x = list(range(1,NUM_SQUADRE+1))
     ax.set_xticks(x)
     ax.set_xlabel('Posizione in classifica')
     
     y = []
-    y_prev = [0 for i in range(10)]
+    y_prev = [0 for i in range(NUM_SQUADRE)]
 
     for team, d in data.items():
         y = list(d.values())
@@ -211,7 +220,7 @@ def stats(freqs):
     res = {}
 
     # weighted average
-    pos_freq = list(zip(range(1,11), freqs))
+    pos_freq = list(zip(range(1,NUM_SQUADRE+1), freqs))
     inner_prod = map(lambda item: item[0]*item[1], pos_freq)
     tot = sum((p for p in inner_prod))
     res['avg'] = tot / len(freqs)
@@ -227,7 +236,21 @@ def stats(freqs):
     return res
 
 
+def compute_classifica_totale(freqs):
+    avg = {}
+    mediana = {}
+    for fantasquadra, f in freqs.items():
+        s = stats(f.values())
+        avg[fantasquadra] = s['avg']
+        mediana[fantasquadra] = s['mediana']
+
+    # sort teams based on this custom formula: mediana + avg / 10
+    index = {fs: mediana[fs] + avg[fs] / 10 for fs in freqs}
+    sorted_index = sorted(index.items(), key=lambda x:x[1])
+    return [f[0] for f in sorted_index]
+
+
 if __name__ == "__main__":
-    rows = read_csv(stagione='2022_2023')
-    export_all_files(stagione='2022_2023', rows=rows)
-    export_summary_file(stagione='2022_2023', rows=rows)
+    rows = read_csv(stagione='2023_2024')
+    export_all_files(stagione='2023_2024', rows=rows)
+    export_summary_file(stagione='2023_2024', rows=rows)
