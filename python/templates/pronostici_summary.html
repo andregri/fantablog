@@ -4,8 +4,12 @@ title: {{ title }}
 permalink: {{ permalink }}
 ---
 
+<div>
 {% for fantasquadra in fantasquadre %}
-    - <a href="{{ fantasquadra.link }}">{{ fantasquadra.name }}</a>
+    <a href="{{ fantasquadra.link }}">{{ fantasquadra.name }}</a> -
 {% endfor %}
+</div>
 
+<div>
 {{ svg }}
+</div>

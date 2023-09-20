@@ -10,7 +10,7 @@ permalink: {{ permalink }}
     - <a href="{{ fantasquadre[id].link }}">{{ fantasquadre[id].name }}</a>
 {% endfor %}
 
-<h1> I pronostici </h1>
+<h1> I pronostici secondo {{ who }}</h1>
 <ol>
     {% for fantasquadra in classifica %}
         <li>{{ fantasquadra }}</li>
