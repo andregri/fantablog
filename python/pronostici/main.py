@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import io
 import jinja2
 from pathlib import Path
+import numpy as np
 
 NUM_SQUADRE = 12
 
@@ -170,7 +171,7 @@ def export_all_files(stagione, rows):
 
 
 def export_summary_file(stagione, rows):
-    svg = generate_histogram_svg_summary(stagione, rows)
+    svg = generate_heatmap_svg_summary(stagione, rows)
     clean_svg = svg.split("\n", 3)
     classifica = compute_classifica_totale(team2position(stagione, rows))
     generate_summary_file(stagione, clean_svg[3], classifica)
@@ -216,6 +217,56 @@ def generate_histogram_svg_summary(stagione, rows):
     return f.getvalue().decode()
 
 
+def generate_heatmap_svg_summary(stagione, rows):
+    # Compute the frequency of each vote
+    position_freqs = team2position(stagione, rows)
+
+    # labels for y axis
+    teams = position_freqs.keys()
+
+    # labels for x axis
+    positions = [n for n in range(1, NUM_SQUADRE+1)]
+
+    # create the matrix of predicitons
+    predictions = np.zeros((NUM_SQUADRE, NUM_SQUADRE), dtype=np.int8)
+    
+    # Fill the matrix with predictions data
+    for r, team in enumerate(teams):
+        for c, pred in enumerate(position_freqs[team].values()):
+            predictions[r][c] = pred
+    
+    fig, ax = plt.subplots()
+    im = ax.imshow(predictions, cmap="YlGn")
+
+    # Show all ticks and label them with the respective list entries
+    ax.set_xticks(np.arange(len(positions)), labels=positions)
+    ax.set_yticks(np.arange(len(teams)), labels=teams)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+            rotation_mode="anchor")
+
+    # Loop over data dimensions and create text annotations.
+    for i in range(len(teams)):
+        for j in range(len(positions)):
+            text = ax.text(j, i, predictions[i, j],
+                        ha="center", va="center", color="r")
+            
+    # Add white padding between rows
+    ax.spines[:].set_visible(False)
+    #ax.set_xticks(np.arange(predictions.shape[1]+1)-.5, minor=True)
+    ax.set_yticks(np.arange(predictions.shape[0]+1)-.5, minor=True)
+    ax.grid(which="minor", color="w", linestyle='-', linewidth=3) # change the appearance of your padding here
+    ax.tick_params(which="minor", bottom=False, left=False)
+
+    ax.set_title("Heatmap of predictions")
+    #fig.tight_layout()
+    
+    f = io.BytesIO()
+    fig.savefig(f, format = "svg", bbox_inches='tight')
+    return f.getvalue().decode()
+
+
 def stats(freqs):
     res = {}
 
@@ -254,3 +305,4 @@ if __name__ == "__main__":
     rows = read_csv(stagione='2023_2024')
     export_all_files(stagione='2023_2024', rows=rows)
     export_summary_file(stagione='2023_2024', rows=rows)
+    generate_heatmap_svg_summary(stagione='2023_2024', rows=rows)
