@@ -1,2 +1,3 @@
 .PHONY: run
-run: python main.py
+run:
+	python3 main.py
