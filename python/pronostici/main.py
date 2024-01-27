@@ -238,13 +238,12 @@ def generate_heatmap_svg_summary(stagione, rows):
     fig, ax = plt.subplots()
     im = ax.imshow(predictions, cmap="YlGn")
 
-    # Show all ticks and label them with the respective list entries
-    ax.set_xticks(np.arange(len(positions)), labels=positions)
-    ax.set_yticks(np.arange(len(teams)), labels=teams)
+    # show x ticks on top
+    ax.xaxis.tick_top()
 
-    # Rotate the tick labels and set their alignment.
-    plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
-            rotation_mode="anchor")
+    # Show all ticks and label them with the respective list entries
+    ax.set_xticks(np.arange(len(positions)), labels=[f"{p}°" for p in positions])
+    ax.set_yticks(np.arange(len(teams)), labels=teams)
 
     # Loop over data dimensions and create text annotations.
     for i in range(len(teams)):
