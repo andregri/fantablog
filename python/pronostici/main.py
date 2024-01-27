@@ -181,8 +181,10 @@ def generate_histogram_svg(x, y):
     # Return svg of the histogram x,y
     f = io.BytesIO()
     plt.figure()
-    plt.xticks(range(1,NUM_SQUADRE+1))
+    plt.xticks(range(1,NUM_SQUADRE+1), labels=[f"{p}°" for p in range(1,NUM_SQUADRE+1)])
+    plt.xlabel("position")
     plt.yticks(range(0,max(y)+1))
+    plt.ylabel("number of votes")
     plt.bar(x,y)
     plt.savefig(f, format = "svg")
     return f.getvalue().decode()
