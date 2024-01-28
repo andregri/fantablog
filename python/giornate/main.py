@@ -7,16 +7,11 @@ from pathlib import Path
 import jinja2
 import os
 import table
+import teams
 
 
 HERE_PATH = Path(__file__).parent.parent
 OUTPUT_PATH = Path(__file__).parent.parent.parent / 'stagioni'
-
-# Read map from ID to Fantasquadra name
-id2fantasquadra = {}
-with open('../../_data/fantasquadre.yml', 'r') as f:
-    data=yaml.safe_load(f)
-    id2fantasquadra = {d['id']: d['name'] for d in data.values()}
 
 
 class Giornata():
@@ -104,16 +99,16 @@ class Giornata():
         return calciatore
 
 
-    def get_title(self, id_partita):
+    def get_title(self, stagione, id_partita):
         id_squadra_casa = self.partite[id_partita]['home']['id_squadra']
-        nome_squadra_casa = id2fantasquadra[id_squadra_casa]
+        nome_squadra_casa = teams.name_by_id(stagione, id_squadra_casa)
         id_squadra_trasferta = self.partite[id_partita]['away']['id_squadra']
-        nome_squadra_trasferta = id2fantasquadra[id_squadra_trasferta]
+        nome_squadra_trasferta = teams.name_by_id(stagione, id_squadra_trasferta)
         risultato = self.partite[id_partita]['risultato']
         return nome_squadra_casa, nome_squadra_trasferta, risultato
 
 
-    def genera_riepilogo_giornata(self, stagione, giornata, is_coppa=False):
+    def genera_riepilogo_giornata(self, stagione, giornata, num_squadre, is_coppa=False):
         teamfile_path = HERE_PATH / 'data' / stagione / 'fantasquadre.yml'
         fantasquadre_dict = {}
         with open(teamfile_path.resolve(), 'r') as f:
@@ -124,7 +119,7 @@ class Giornata():
                 ) for id in data}
             
         table_json_path = HERE_PATH / 'data' / stagione / 'campionato' / f'classifica_{giornata}.json'
-        t = table.Table(10, table_json_path)
+        t = table.Table(stagione, num_squadre, table_json_path)
 
         out_html_filepath = OUTPUT_PATH / stagione / 'giornate' / str(giornata) / f'{str(giornata)}.html'
         with open(out_html_filepath.resolve(), 'w') as out_f:
@@ -150,7 +145,7 @@ class Giornata():
             out_f.write(outputText)
 
     
-    def genera_riepilogo_giornata_coppa_gironi(self, stagione, giornata):
+    def genera_riepilogo_giornata_coppa_gironi(self, stagione, giornata, num_squadre_per_girone):
         teamfile_path = HERE_PATH / 'data' / stagione / 'fantasquadre.yml'
         fantasquadre_dict = {}
         with open(teamfile_path.resolve(), 'r') as f:
@@ -158,7 +153,7 @@ class Giornata():
             fantasquadre_dict = {id: dict(name=data[id]['name']) for id in data}
 
         table_json_path = HERE_PATH / 'data' / stagione / 'coppa' / f'classifica_{giornata}.json'
-        t = table.Table(5, table_json_path)
+        t = table.Table(stagione, num_squadre_per_girone, table_json_path)
         group_tables = [{'group': group, 'table': t.by_group(group)} for group in t.groups()]
     
         out_html_filepath = OUTPUT_PATH / stagione / 'coppa' / 'giornate' / str(giornata) / f'{str(giornata)}.html'
@@ -216,7 +211,7 @@ class Giornata():
 
 
     def genera_partita(self, stagione, giornata, id_partita, is_coppa=False):
-        nome_squadra_casa, nome_squadra_trasferta, risultato = self.get_title(id_partita)
+        nome_squadra_casa, nome_squadra_trasferta, risultato = self.get_title(stagione, id_partita)
         title = f'{nome_squadra_casa} ({risultato}) {nome_squadra_trasferta}'
 
         permalink = f'{stagione}/giornate/{giornata}/partite/{id_partita}'
@@ -234,11 +229,11 @@ class Giornata():
 
             # Titolari
             f.write('<h1>Titolari</h1>\n')
-            self.genera_tabella_formazioni(f, id_partita, 0, 10, aggiungi_nomi_squadre=True)
+            self.genera_tabella_formazioni(f, stagione, id_partita, 0, 10, aggiungi_nomi_squadre=True)
 
             # Panchina
             f.write('<h1>Panchina</h1>\n')
-            self.genera_tabella_formazioni(f, id_partita, 11, 17, aggiungi_nomi_squadre=False)
+            self.genera_tabella_formazioni(f, stagione, id_partita, 11, 17, aggiungi_nomi_squadre=False)
 
             f.write('<table>\n')
             # MODIFICATORE DIFESA
@@ -294,12 +289,12 @@ class Giornata():
         file.write('{% endfor %}')
 
 
-    def genera_tabella_formazioni(self, f, id_partita, start_index, stop_index, aggiungi_nomi_squadre=False):
+    def genera_tabella_formazioni(self, f, stagione, id_partita, start_index, stop_index, aggiungi_nomi_squadre=False):
         f.write('<table>\n')
         
         # Aggiungi i nomi delle squadre all'inizio della tabella
         if aggiungi_nomi_squadre:
-            nomi_squadre = self.get_title(id_partita=id_partita)
+            nomi_squadre = self.get_title(stagione=stagione, id_partita=id_partita)
             f.write(f'  <tr>\n')
             for i, field in zip(range(2), ['home', 'away']):
                 modulo = self.partite[id_partita][field]["modulo_iniziale"]
@@ -424,13 +419,16 @@ if __name__ == "__main__":
         Genera i file per una stagione
 
         es. Per generare i file della stagione 2022_2023
-            python main.py 2022_2023
+            python main.py 2023_2024 --num-squadre 12
 
         es. Per generare i file della coppa
-            python main.py 2022_2023 --coppa gironi
+            python main.py 2023_2024 --coppa gironi --coppa-girone-giornate 6 --coppa-girone-squadre 3
     ''')
     parser.add_argument('stagione', type=str, help='stagione e.g. 2022_2023')
-    parser.add_argument('--coppa', type=str, help='fase della coppa, e.g. gironi')
+    parser.add_argument('--num-squadre', type=int, help='numero di squadre e.g. 10')
+    parser.add_argument('--coppa', type=str, help='fase della coppa - possible values: [gironi]')
+    parser.add_argument('--coppa-girone-giornate', type=int, help='numero di giornate dei gironi in coppa e.g. 6')
+    parser.add_argument('--coppa-girone-squadre', type=int, help='numero di squadre per girone in coppa e.g. 3')
     args = parser.parse_args()
     
     if args.coppa:
@@ -453,12 +451,13 @@ if __name__ == "__main__":
         giornata = Giornata(day_file)
 
         if args.coppa:
-            if day_number > 5:
+            if day_number > args.coppa_girone_giornate:
                 giornata.genera_riepilogo_giornata_coppa_eliminazione(stagione=args.stagione, giornata=day_number)
             else:
-                giornata.genera_riepilogo_giornata_coppa_gironi(stagione=args.stagione, giornata=day_number)
+                giornata.genera_riepilogo_giornata_coppa_gironi(
+                    stagione=args.stagione, giornata=day_number, num_squadre_per_girone=args.coppa_girone_squadre)
         else:
-            giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=day_number)
+            giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=day_number, num_squadre=args.num_squadre)
         
         for i in range(len(giornata.partite)):
             giornata.genera_partita(stagione=args.stagione, giornata=day_number, id_partita=i+1, is_coppa=args.coppa)
