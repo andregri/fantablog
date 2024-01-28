@@ -422,11 +422,12 @@ if __name__ == "__main__":
             python main.py 2023_2024 --num-squadre 12
 
         es. Per generare i file della coppa
-            python main.py 2022_2023 --coppa gironi
+            python main.py 2023_2024 --coppa gironi --coppa-group-days 6
     ''')
     parser.add_argument('stagione', type=str, help='stagione e.g. 2022_2023')
     parser.add_argument('--num-squadre', type=int, help='numero di squadre e.g. 10')
-    parser.add_argument('--coppa', type=str, help='fase della coppa, e.g. gironi')
+    parser.add_argument('--coppa', type=str, help='fase della coppa - possible values: [gironi]')
+    parser.add_argument('--coppa-group-days', type=int, help='numero di giornate dei gironi in coppa e.g. 6')
     args = parser.parse_args()
     
     if args.coppa:
@@ -449,7 +450,7 @@ if __name__ == "__main__":
         giornata = Giornata(day_file)
 
         if args.coppa:
-            if day_number > 5:
+            if day_number > args.coppa_group_days:
                 giornata.genera_riepilogo_giornata_coppa_eliminazione(stagione=args.stagione, giornata=day_number)
             else:
                 giornata.genera_riepilogo_giornata_coppa_gironi(stagione=args.stagione, giornata=day_number)
