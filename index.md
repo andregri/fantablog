@@ -9,6 +9,7 @@ layout: home
 
 <ul>
     <li><a href="2023_2024/pronostici/pronostici.html">Pronostici</a></li>
+    <li><a href="2023_2024/calendario">Campionato: calendario e risultati</a></li>
 </ul>
 
 <h1><a href="2022_2023/">Stagione 2022/2023</a></h1>
