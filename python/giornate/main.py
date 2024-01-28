@@ -7,16 +7,11 @@ from pathlib import Path
 import jinja2
 import os
 import table
+import teams
 
 
 HERE_PATH = Path(__file__).parent.parent
 OUTPUT_PATH = Path(__file__).parent.parent.parent / 'stagioni'
-
-# Read map from ID to Fantasquadra name
-id2fantasquadra = {}
-with open('../../_data/fantasquadre.yml', 'r') as f:
-    data=yaml.safe_load(f)
-    id2fantasquadra = {d['id']: d['name'] for d in data.values()}
 
 
 class Giornata():
@@ -106,9 +101,9 @@ class Giornata():
 
     def get_title(self, id_partita):
         id_squadra_casa = self.partite[id_partita]['home']['id_squadra']
-        nome_squadra_casa = id2fantasquadra[id_squadra_casa]
+        nome_squadra_casa = teams.name_by_id(id_squadra_casa)
         id_squadra_trasferta = self.partite[id_partita]['away']['id_squadra']
-        nome_squadra_trasferta = id2fantasquadra[id_squadra_trasferta]
+        nome_squadra_trasferta = teams.name_by_id(id_squadra_trasferta)
         risultato = self.partite[id_partita]['risultato']
         return nome_squadra_casa, nome_squadra_trasferta, risultato
 
@@ -124,7 +119,7 @@ class Giornata():
                 ) for id in data}
             
         table_json_path = HERE_PATH / 'data' / stagione / 'campionato' / f'classifica_{giornata}.json'
-        t = table.Table(10, table_json_path)
+        t = table.Table(stagione, 10, table_json_path)
 
         out_html_filepath = OUTPUT_PATH / stagione / 'giornate' / str(giornata) / f'{str(giornata)}.html'
         with open(out_html_filepath.resolve(), 'w') as out_f:
@@ -158,7 +153,7 @@ class Giornata():
             fantasquadre_dict = {id: dict(name=data[id]['name']) for id in data}
 
         table_json_path = HERE_PATH / 'data' / stagione / 'coppa' / f'classifica_{giornata}.json'
-        t = table.Table(5, table_json_path)
+        t = table.Table(stagione, 5, table_json_path)
         group_tables = [{'group': group, 'table': t.by_group(group)} for group in t.groups()]
     
         out_html_filepath = OUTPUT_PATH / stagione / 'coppa' / 'giornate' / str(giornata) / f'{str(giornata)}.html'

@@ -2,9 +2,9 @@ import json
 import teams
 
 class TableRow():
-    def __init__(self, position, data):
+    def __init__(self, stagione, position, data):
         self.position = position
-        self.team = teams.name_by_id(data.get('id'))
+        self.team = teams.name_by_id(stagione, data.get('id'))
         self.played = data.get('g')
         self.won = data.get('v')
         self.draw = data.get('n')
@@ -18,7 +18,7 @@ class TableRow():
 
 
 class Table():
-    def __init__(self, teams_per_group, json_path):
+    def __init__(self, stagione, teams_per_group, json_path):
         self.rows = []
 
         with open(json_path, 'r') as f:
@@ -27,7 +27,7 @@ class Table():
 
             for i, row in enumerate(table):
                 pos = (i % teams_per_group) + 1
-                self.rows.append(TableRow(pos, row))
+                self.rows.append(TableRow(stagione, pos, row))
 
     def groups(self):
         return sorted(set((row.group for row in self.rows)))
