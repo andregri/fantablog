@@ -145,7 +145,7 @@ class Giornata():
             out_f.write(outputText)
 
     
-    def genera_riepilogo_giornata_coppa_gironi(self, stagione, giornata):
+    def genera_riepilogo_giornata_coppa_gironi(self, stagione, giornata, num_squadre_per_girone):
         teamfile_path = HERE_PATH / 'data' / stagione / 'fantasquadre.yml'
         fantasquadre_dict = {}
         with open(teamfile_path.resolve(), 'r') as f:
@@ -153,7 +153,7 @@ class Giornata():
             fantasquadre_dict = {id: dict(name=data[id]['name']) for id in data}
 
         table_json_path = HERE_PATH / 'data' / stagione / 'coppa' / f'classifica_{giornata}.json'
-        t = table.Table(stagione, 5, table_json_path)
+        t = table.Table(stagione, num_squadre_per_girone, table_json_path)
         group_tables = [{'group': group, 'table': t.by_group(group)} for group in t.groups()]
     
         out_html_filepath = OUTPUT_PATH / stagione / 'coppa' / 'giornate' / str(giornata) / f'{str(giornata)}.html'
@@ -422,12 +422,13 @@ if __name__ == "__main__":
             python main.py 2023_2024 --num-squadre 12
 
         es. Per generare i file della coppa
-            python main.py 2023_2024 --coppa gironi --coppa-group-days 6
+            python main.py 2023_2024 --coppa gironi --coppa-girone-giornate 6 --coppa-girone-squadre 3
     ''')
     parser.add_argument('stagione', type=str, help='stagione e.g. 2022_2023')
     parser.add_argument('--num-squadre', type=int, help='numero di squadre e.g. 10')
     parser.add_argument('--coppa', type=str, help='fase della coppa - possible values: [gironi]')
-    parser.add_argument('--coppa-group-days', type=int, help='numero di giornate dei gironi in coppa e.g. 6')
+    parser.add_argument('--coppa-girone-giornate', type=int, help='numero di giornate dei gironi in coppa e.g. 6')
+    parser.add_argument('--coppa-girone-squadre', type=int, help='numero di squadre per girone in coppa e.g. 3')
     args = parser.parse_args()
     
     if args.coppa:
@@ -450,10 +451,11 @@ if __name__ == "__main__":
         giornata = Giornata(day_file)
 
         if args.coppa:
-            if day_number > args.coppa_group_days:
+            if day_number > args.coppa_girone_giornate:
                 giornata.genera_riepilogo_giornata_coppa_eliminazione(stagione=args.stagione, giornata=day_number)
             else:
-                giornata.genera_riepilogo_giornata_coppa_gironi(stagione=args.stagione, giornata=day_number)
+                giornata.genera_riepilogo_giornata_coppa_gironi(
+                    stagione=args.stagione, giornata=day_number, num_squadre_per_girone=args.coppa_girone_squadre)
         else:
             giornata.genera_riepilogo_giornata(stagione=args.stagione, giornata=day_number, num_squadre=args.num_squadre)
         
