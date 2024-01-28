@@ -5,7 +5,7 @@ permalink: /2023_2024/calendario
 ---
 
 <ul>
-    {% for item in site.data.2023_2024.calendario %}
+    {% for item in site.data.stagione_2023_2024.calendario %}
         <li>
             <a href="giornate/{{ item.giornata }}">Giornata {{ item.giornata }}</a>
 
