@@ -22,83 +22,86 @@ permalink: /2023_2024/calendario-coppa
         <th></th>
         <th></th>
         <th>Finale</th>
+        <th></th>
     </tr>
     <tr>
-        <td>Medusa Team</td>
+        <td>Pompy FC</td>
+        <td>1</td>
+        <td>1</td>
         <td></td>
         <td></td>
         <td></td>
         <td></td>
+    </tr>
+    <tr>
+        <td>Team Barco F.C.</td>
+        <td>1</td>
+        <td>1</td>
+        <td>Pompy FC</td>
+        <td>0</td>
+        <td>0</td>
         <td></td>
+    </tr>
+    <tr>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr>
+        <td>MedusaTeam WFC IL BLOCCO</td>
+        <td>1</td>
+        <td>1</td>
+        <td>MedusaTeam WFC IL BLOCCO</td>
+        <td>1</td>
+        <td>2</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>REAL DAVID</td>
+        <td>0</td>
+        <td>0</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>MedusaTeam WFC IL BLOCCO</td>
+        <td>0</td>
+    </tr>
+    <tr>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr>
+        <td>Real Pollo</td>
+        <td>0</td>
+        <td>0</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><b>Owl City</b></td>
+        <td>1</td>
+    </tr>
+    <tr>
+        <td>Owl City</td>
+        <td>2</td>
+        <td>3</td>
+        <td>Owl City</td>
+        <td>1</td>
+        <td>0</td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+    </tr>
+    <tr>
+        <td>Paris Saint Germano</td>
+        <td>0</td>
+        <td>1</td>
+        <td>Ire Framba United</td>
+        <td>0</td>
+        <td>0</td>
         <td></td>
     </tr>
     <tr>
         <td>Ire Framba United</td>
-        <td></td>
-        <td></td>
-        <td>Medusa Team</td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-    </tr>
-    <tr>
-        <td>Reggisenal</td>
-        <td></td>
-        <td></td>
-        <td>Pompy FC</td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>Pompy FC</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td>Medusa Team</td>
-    </tr>
-    <tr>
-        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-    </tr>
-    <tr>
-        <td>Godopoli Sportiva</td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><b>Real Pollo</b></td>
-    </tr>
-    <tr>
-        <td>ApoelKan</td>
-        <td></td>
-        <td></td>
-        <td>Godopoli Sportiva</td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-    </tr>
-    <tr>
-        <td>Patetico Mineiro</td>
-        <td></td>
-        <td></td>
-        <td>Real Pollo</td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>Real Pollo</td>
-        <td></td>
-        <td></td>
+        <td>0</td>
+        <td>3</td>
         <td></td>
         <td></td>
         <td></td>
