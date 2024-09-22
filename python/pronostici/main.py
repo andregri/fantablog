@@ -13,9 +13,9 @@ HERE_PATH = Path(__file__).parent.parent
 OUTPUT_PATH = Path(__file__).parent.parent.parent / 'stagioni'
 
 # Read map from ID to Fantasquadra name
-id2fantasquadra = {}
-with open('../../_data/fantasquadre.yml', 'r') as f:
-    id2fantasquadra=yaml.safe_load(f)
+#id2fantasquadra = {}
+#with open('../../_data/fantasquadre.yml', 'r') as f:
+#    id2fantasquadra=yaml.safe_load(f)
 
 
 def generate_file(stagione, row, svg, stat):
@@ -284,6 +284,16 @@ def stats(freqs):
             n.append(pos)
 
     res['mediana'] = n[int(len(n)/2)]
+
+    # moda
+    max_freq = -1
+    moda = -1
+    for pos, freq in pos_freq:
+        if freq > max_freq:
+            max_freq = freq
+            moda = pos
+
+    res['moda'] = moda
     
     return res
 
@@ -291,19 +301,21 @@ def stats(freqs):
 def compute_classifica_totale(freqs):
     avg = {}
     mediana = {}
+    moda = {}
     for fantasquadra, f in freqs.items():
         s = stats(f.values())
         avg[fantasquadra] = s['avg']
         mediana[fantasquadra] = s['mediana']
+        moda[fantasquadra] = s['moda']
 
     # sort teams based on this custom formula: mediana + avg / 10
     index = {fs: mediana[fs] + avg[fs] / 10 for fs in freqs}
     sorted_index = sorted(index.items(), key=lambda x:x[1])
-    return [f[0] for f in sorted_index]
+    return [f"<b>{f[0]}</b> (mediana: {mediana[f[0]]} - media: {avg[f[0]]:.2f} - moda: {moda[f[0]]})" for f in sorted_index]
 
 
 if __name__ == "__main__":
-    rows = read_csv(stagione='2023_2024')
-    export_all_files(stagione='2023_2024', rows=rows)
-    export_summary_file(stagione='2023_2024', rows=rows)
-    generate_heatmap_svg_summary(stagione='2023_2024', rows=rows)
+    rows = read_csv(stagione='2024_2025')
+    export_all_files(stagione='2024_2025', rows=rows)
+    export_summary_file(stagione='2024_2025', rows=rows)
+    generate_heatmap_svg_summary(stagione='2024_2025', rows=rows)

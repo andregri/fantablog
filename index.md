@@ -5,6 +5,14 @@
 layout: home
 ---
 
+<h1><a href="stagioni/2024_2025">Stagione 2024/2025</a></h1>
+
+<ul>
+    <li><a href="2024_2025/pronostici/pronostici.html">Pronostici</a></li>
+    <li><a href="2024_2025/calendario">Campionato: calendario e risultati</a></li>
+    <li><a href="2024_2025/calendario-coppa">Coppa Box:  calendario e risultati</a></li>
+</ul>
+
 <h1><a href="stagioni/2023_2024">Stagione 2023/2024</a></h1>
 
 <ul>
